@@ -1,0 +1,1444 @@
+/* Journal: note content, editor and view plugins. Tokens and techniques come from theme.src.css.
+   Plugin hues collapse to ink opacity or the pen; shape carries any meaning that must survive.
+   !important appears only where a plugin writes colour inline or as an inline custom property. */
+
+/* ── global hue collapse (core tokens other plugins read) ── warm/alert → ink, cool/positive → pen */
+.theme-light,
+.theme-dark {
+  --color-red: var(--jr-ink);
+  --color-orange: var(--jr-ink);
+  --color-yellow: var(--jr-ink);
+  --color-green: var(--jr-pen);
+  --color-cyan: var(--jr-pen);
+  --color-blue: var(--jr-pen);
+  --color-purple: var(--jr-pen);
+  --color-pink: var(--jr-pen);
+  --color-red-rgb: var(--jr-ink-rgb);
+  --color-orange-rgb: var(--jr-ink-rgb);
+  --color-yellow-rgb: var(--jr-ink-rgb);
+  --color-green-rgb: var(--jr-pen-rgb);
+  --color-cyan-rgb: var(--jr-pen-rgb);
+  --color-blue-rgb: var(--jr-pen-rgb);
+  --color-purple-rgb: var(--jr-pen-rgb);
+  --color-pink-rgb: var(--jr-pen-rgb);
+  --highlight-background-red: var(--jr-marker);
+  --highlight-background-orange: var(--jr-marker);
+  --highlight-background-yellow: var(--jr-marker);
+  --highlight-background-green: var(--jr-marker);
+  --highlight-background-cyan: var(--jr-marker);
+  --highlight-background-blue: var(--jr-marker);
+  --highlight-background-purple: var(--jr-marker);
+  --highlight-background-pink: var(--jr-marker);
+}
+
+/* ── callout-manager + callout-suggestions ── the only difference between kinds: ink or pen title + icon */
+.callout[data-callout] {
+  --callout-color: var(--jr-ink-rgb) !important; /* beats callout-manager's generated per-kind rules */
+  --callout-title-color: rgb(var(--callout-color));
+}
+.callout[data-callout]:is([data-callout="info"], [data-callout="todo"], [data-callout="tip"], [data-callout="hint"], [data-callout="important"], [data-callout="success"], [data-callout="check"], [data-callout="done"]) {
+  --callout-color: var(--jr-pen-rgb) !important;
+}
+.callout .callout-icon,
+.callout .callout-fold {
+  color: rgb(var(--callout-color));
+}
+/* callout-suggestions: no styles, uses core suggestion list. */
+
+/* ── obsidian-admonition ── inline --admonition-color collapses the same way */
+.admonition {
+  --admonition-color: var(--jr-ink-rgb) !important;
+  position: relative;
+  overflow: visible;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.admonition:is(.admonition-info, .admonition-todo, .admonition-tip, .admonition-hint, .admonition-important, .admonition-success, .admonition-check, .admonition-done) {
+  --admonition-color: var(--jr-pen-rgb) !important;
+}
+.admonition::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1.75px solid var(--jr-ink);
+  filter: var(--jr-wobble);
+}
+.admonition::after {
+  content: "";
+  position: absolute;
+  inset: 1px -1px -1px 1px;
+  pointer-events: none;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  filter: var(--jr-wobble-b);
+}
+.admonition-title {
+  background-color: transparent;
+  color: rgb(var(--admonition-color));
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.admonition-title-icon,
+.admonition-title-icon svg {
+  color: inherit;
+  fill: currentColor;
+}
+.admonition-content {
+  background-color: transparent;
+  border: 0;
+}
+
+/* ── obsidian-list-callouts ── no tinted row; the marker alone becomes a stadium */
+.lc-list-bg::after,
+.lc-li-wrapper::after,
+.theme-dark .lc-list-bg::after,
+.theme-dark .lc-li-wrapper::after {
+  background-color: transparent;
+}
+.lc-list-marker {
+  display: inline-block;
+  padding: 0 0.35em;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+  font-family: var(--jr-body);
+  font-weight: 400;
+  color: var(--jr-ink);
+}
+
+/* ── obsidian-kanban ── lanes: rough boxes. Cards: cheap uneven radius, a board has many of them. */
+.kanban-plugin__lane {
+  position: relative;
+  background-color: var(--jr-paper);
+  border: 0;
+}
+.kanban-plugin__lane::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1.75px solid var(--jr-ink);
+  filter: var(--jr-wobble);
+}
+.kanban-plugin__lane-header-wrapper,
+.kanban-plugin__lane-header-wrapper + .kanban-plugin__item-button-wrapper,
+.kanban-plugin__lane-header-wrapper + .kanban-plugin__item-form,
+.kanban-plugin__item-button-wrapper {
+  border-color: rgba(var(--jr-ink-rgb), 0.28);
+}
+.kanban-plugin__lane-title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+  font-size: var(--font-ui-medium);
+}
+.kanban-plugin__lane-grip {
+  color: var(--jr-ink);
+}
+div.kanban-plugin__lane-title-count {
+  color: var(--jr-muted);
+}
+div.kanban-plugin__lane-title-count.wip-exceeded {
+  background-color: transparent;
+  color: var(--jr-ink);
+  text-decoration: underline double;
+}
+.kanban-plugin__item {
+  border: 1.5px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+  font-size: var(--font-ui-small);
+}
+.kanban-plugin__item:has(.markdown-source-view) {
+  outline: 0;
+  box-shadow: var(--jr-second-stroke);
+}
+.kanban-plugin__item-content-wrapper,
+.kanban-plugin__item-title-wrapper {
+  background-color: var(--jr-paper);
+}
+.kanban-plugin__item-title-wrapper:not(:only-child) {
+  border-color: rgba(var(--jr-ink-rgb), 0.28);
+}
+.kanban-plugin__drag-container > .kanban-plugin__item-wrapper .kanban-plugin__item {
+  border-color: var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.kanban-plugin__lane-items > .kanban-plugin__placeholder:only-child {
+  border: 1.5px dashed var(--jr-faint);
+  border-radius: var(--jr-edge-s);
+}
+/* Add-card is a "+ text" link, not a boxed button. */
+button.kanban-plugin__new-item-button,
+button.kanban-plugin__new-item-button:hover {
+  background-color: transparent;
+  color: var(--jr-muted);
+}
+button.kanban-plugin__new-item-button:hover {
+  color: var(--jr-ink);
+}
+button.kanban-plugin__new-item-button::before,
+button.kanban-plugin__new-item-button:not(.mod-loading)::after {
+  content: none;
+}
+button.kanban-plugin__item-action-add,
+button.kanban-plugin__lane-action-add,
+button.kanban-plugin__item-action-add:hover,
+button.kanban-plugin__lane-action-add:hover {
+  background-color: transparent;
+  color: var(--jr-ink);
+}
+.kanban-plugin a.tag,
+.kanban-plugin__drag-container a.tag {
+  --tag-color: var(--jr-muted) !important;
+  --tag-background: transparent !important;
+}
+.kanban-plugin__date,
+.kanban-plugin__item-metadata-date-wrapper .kanban-plugin__date {
+  --date-color: var(--jr-muted) !important;
+  --date-background-color: transparent !important;
+}
+.kanban-plugin__meta-table th,
+.kanban-plugin__table-wrapper th {
+  font-family: var(--jr-display);
+}
+.kanban-plugin__table-wrapper table {
+  box-shadow: 0 0 0 1.25px rgba(var(--jr-ink-rgb), 0.45);
+}
+/* Board settings: the tag-multiselect pills. */
+.choices__inner,
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+  background-color: var(--jr-paper);
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+  color: var(--jr-ink);
+}
+.choices__list--multiple .choices__item,
+.is-disabled .choices__list--multiple .choices__item {
+  background-color: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+  color: var(--jr-ink);
+}
+.choices__list--dropdown .choices__item--selectable.is-highlighted,
+.choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+
+/* Shared by kanban and tasks: the flatpickr date picker. */
+.flatpickr-calendar {
+  background: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+  color: var(--jr-ink);
+}
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+  display: none;
+}
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year,
+span.flatpickr-weekday {
+  background: transparent;
+  color: var(--jr-ink);
+  fill: var(--jr-ink);
+  font-family: var(--jr-body);
+}
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+  fill: var(--jr-ink);
+}
+.flatpickr-day {
+  color: var(--jr-ink);
+  border-radius: 50%;
+}
+.flatpickr-day:hover {
+  background: rgba(var(--jr-ink-rgb), 0.08);
+  border-color: transparent;
+}
+.flatpickr-day:is(.prevMonthDay, .nextMonthDay, .flatpickr-disabled) {
+  color: var(--jr-faint);
+}
+.flatpickr-day.today,
+.flatpickr-day.today:hover {
+  background: transparent;
+  border: 1.75px solid var(--jr-pen);
+  color: var(--jr-pen);
+}
+.flatpickr-day:is(.selected, .startRange, .endRange),
+.flatpickr-day:is(.selected, .startRange, .endRange):hover {
+  background: var(--jr-ink);
+  border-color: var(--jr-ink);
+  box-shadow: none;
+  color: var(--jr-paper);
+}
+.flatpickr-day.inRange {
+  background: rgba(var(--jr-ink-rgb), 0.08);
+  border-color: transparent;
+  box-shadow: none;
+}
+.dayContainer + .dayContainer {
+  box-shadow: none;
+}
+
+/* ── dataview ── the filtered box is off here: query tables can run long */
+:is(.markdown-rendered, .block-language-dataview) table.table-view-table {
+  position: relative;
+}
+:is(.markdown-rendered, .block-language-dataview) table.table-view-table::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+  filter: none;
+}
+.table-view-table > thead > tr > th {
+  font-family: var(--jr-display);
+  font-size: 1em;
+  font-weight: 700;
+  border-bottom: 1.75px solid rgba(var(--jr-ink-rgb), 0.45);
+}
+.table-view-table > tbody > tr > td {
+  border-bottom: 1.25px solid rgba(var(--jr-ink-rgb), 0.28);
+}
+.dataview.table-view-table > tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+/* Core gives these --nav-item-color-selected, which this theme sets to paper: invisible text. */
+.dataview:is(.inline-field-key, .inline-field-value, .inline-field-standalone-value) {
+  background-color: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  color: var(--jr-ink);
+  font-family: var(--jr-body);
+}
+.dataview.inline-field-key {
+  border-inline-end: 0;
+  border-radius: 999px 0 0 999px;
+  color: var(--jr-muted);
+}
+.dataview.inline-field-value {
+  border-radius: 0 999px 999px 0;
+}
+.dataview.inline-field-standalone-value {
+  border-radius: 999px;
+}
+.dataview:is(.task-list-item, .task-list-basic-item):hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+  box-shadow: none;
+}
+div.dataview-error-box {
+  border: 1.5px dashed var(--jr-faint);
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── obsidian-tasks-plugin ── priority = ink glyph, dates = stadium, overdue = double stroke */
+.plugin-tasks-toolbar input {
+  background: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+  color: var(--jr-ink);
+  font-family: var(--jr-body);
+}
+.task-priority > span {
+  font-size: 0;
+}
+.task-priority::before {
+  color: var(--jr-ink);
+  font-family: var(--jr-display);
+  font-weight: 700;
+  margin-inline-start: 0.25em;
+}
+.task-priority[data-task-priority="highest"]::before { content: "!!!"; }
+.task-priority[data-task-priority="high"]::before { content: "!!"; }
+.task-priority[data-task-priority="medium"]::before { content: "!"; }
+.task-priority[data-task-priority="low"]::before { content: "↓"; color: var(--jr-muted); }
+.task-priority[data-task-priority="lowest"]::before { content: "↓↓"; color: var(--jr-muted); }
+:is(.task-due, .task-scheduled, .task-start, .task-created, .task-done, .task-cancelled, .task-recurring) > span {
+  display: inline-block;
+  margin-inline-start: 0.25em;
+  padding: 0 0.5em;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+  color: var(--jr-muted);
+  filter: grayscale(1); /* the plugin's date emoji carry their own colour */
+}
+.task-due[data-task-due^="past"] > span {
+  border-color: var(--jr-ink);
+  box-shadow: 0 0 0 1px var(--jr-paper), 0 0 0 2px var(--jr-ink);
+  color: var(--jr-ink);
+}
+/* Pen goes on the unfiltered parent: the inner span's grayscale would drain it. */
+:is(.task-due[data-task-due="today"], .task-scheduled[data-task-scheduled="today"]) {
+  display: inline-block;
+  margin-inline-start: 0.25em;
+  border: 1.75px solid var(--jr-pen);
+  border-radius: 999px;
+}
+:is(.task-due[data-task-due="today"], .task-scheduled[data-task-scheduled="today"]) > span {
+  margin: 0;
+  border: 0;
+  color: var(--jr-ink);
+}
+.tasks-edit::after {
+  content: "✎";
+}
+.tasks-postpone::after {
+  content: "»";
+}
+.tasks-edit,
+.tasks-postpone {
+  color: var(--jr-muted);
+}
+.tasks-urgency {
+  background-color: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+  color: var(--jr-muted);
+}
+.tasks-group-heading,
+.plugin-tasks-query-explanation {
+  font-family: var(--jr-display);
+}
+.tasks-modal-priority-section .task-modal-priority-option-container input {
+  accent-color: var(--jr-ink);
+}
+.tasks-modal-priority-section .task-modal-priority-option-container input:focus + label {
+  box-shadow: none;
+  outline: 1.5px solid var(--jr-ink);
+}
+.tasks-modal-priority-section .task-modal-priority-option-container input:checked + label {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+
+/* ── buttons ── */
+button.button-default,
+.theme-dark button.button-default,
+button.button-default:hover,
+.theme-dark button.button-default:hover {
+  background: transparent;
+  border: 0;
+  border-radius: var(--jr-edge-btn);
+  box-shadow: none;
+  color: var(--jr-ink);
+}
+button.button-default:hover,
+.theme-dark button.button-default:hover {
+  background: var(--interactive-hover);
+}
+/* The plugin's colour variants (.blue, .red, ...) stay plain outline buttons. */
+button.button-default:is(.blue, .red, .green, .yellow, .purple, .orange) {
+  background: transparent;
+  border: 0;
+  color: var(--jr-ink);
+}
+button.btn-primary:not(.clickable-icon) {
+  background: transparent;
+  border: 0;
+  color: var(--jr-ink);
+  padding-inline: 24px;
+}
+button.btn-primary:not(.clickable-icon)::before {
+  border-width: 2px;
+  background-image: var(--jr-hatch);
+}
+button.btn-primary:not(.clickable-icon):not(.mod-loading)::after {
+  inset: 7px 12px;
+  border: 0;
+  border-radius: 4px;
+  background-color: var(--jr-paper);
+  filter: none;
+}
+button.btn-secondary:not(.clickable-icon),
+button.btn-add-action:not(.clickable-icon),
+button.btn-remove:not(.clickable-icon) {
+  background: transparent;
+  border: 0;
+  color: var(--jr-ink);
+}
+.button-maker :is(.form-section, .action-card, .preview-section, .toggle-field) {
+  background: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+  box-shadow: none;
+}
+
+/* ── obsidian-meta-bind-plugin ── */
+body {
+  --mb-background-modifier-active: var(--jr-ink);
+  --mb-background-modifier-active-hover: var(--jr-ink);
+  --mb-input-type-select-text-active: var(--jr-paper);
+  --mb-input-type-select-text-active-hover: var(--jr-paper);
+  --mb-border-radius: 5px;
+}
+.mb-button-inner.mod-plain::before,
+.mb-button-inner.mod-plain:not(.mod-loading)::after {
+  content: none;
+}
+.mb-progress-bar-input {
+  border: 1.5px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+  overflow: hidden;
+}
+.mb-progress-bar-progress {
+  background: var(--jr-pen);
+  border-radius: 0;
+}
+/* Sits half over the pen fill, half over paper. */
+.mb-progress-bar-value {
+  padding: 0 0.4em;
+  background-color: var(--jr-paper);
+  border-radius: var(--jr-edge-s);
+}
+.mb-card {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+}
+.mb-calendar-selected,
+.mb-calendar-cell.is-selected {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.mb-calendar-highlight {
+  background-color: transparent;
+  color: var(--jr-pen);
+  box-shadow: inset 0 0 0 1.5px var(--jr-pen);
+  border-radius: 50%;
+}
+.mb-error,
+.mb-warning {
+  color: var(--jr-ink);
+  text-decoration: underline double;
+}
+.mb-highlight-keyword,
+.cm-mb-highlight-keyword {
+  color: var(--jr-pen);
+}
+:is(.mb-highlight-string, .cm-mb-highlight-string, .mb-highlight-ident, .cm-mb-highlight-ident, .mb-highlight-control, .cm-mb-highlight-control) {
+  color: var(--jr-ink);
+}
+
+/* ── highlightr-plugin ── any user colour on a highlight becomes the marker */
+.markdown-rendered mark[style],
+.cm-content mark[style],
+body:is(.highlightr-lowlight, .highlightr-floating, .highlightr-rounded, .highlightr-realistic) :is(.markdown-rendered mark, span.cm-highlight) {
+  background: linear-gradient(100deg, transparent 0.12em, var(--jr-marker) 0.22em, var(--jr-marker) calc(100% - 0.22em), transparent calc(100% - 0.12em)) !important;
+  color: var(--text-normal) !important;
+  border-radius: 0 !important;
+}
+
+/* ── colored-text ── user colour keeps its "this is marked" meaning as the pen */
+.markdown-rendered :is(span[style*="color"]:not([style*="background"]), font[color]),
+.cm-content :is(span[style*="color"]:not([style*="background"]), font[color]) {
+  color: var(--jr-pen) !important;
+}
+/* shortcut: status-bar swatches go grey, picker UIs keep hue; a picker needs its hues to work. */
+.status-color {
+  filter: grayscale(1);
+  border: 1.5px solid var(--jr-ink);
+  border-radius: 50%;
+}
+
+/* ── obsidian-tracker ── !important because a block's lineColor/barColor is set inline */
+.theme-light,
+.theme-dark {
+  --color-title: var(--jr-ink);
+  --color-axis: var(--jr-ink);
+  --color-axis-label: var(--jr-muted);
+  --color-tick-label: var(--jr-muted);
+  --color-line: var(--jr-ink);
+  --color-legend-border: rgba(var(--jr-ink-rgb), 0.45);
+  --color-dot-fill: var(--jr-ink);
+  --color-dot-stroke: none;
+  --color-bar-fill: transparent;
+  --color-bar-border: var(--jr-ink);
+  --color-tooltip-bg: var(--jr-paper);
+  --color-tooltip-border: var(--jr-ink);
+  --color-tooltip-label: var(--jr-ink);
+}
+[class^="tracker-"] {
+  font-family: var(--jr-body);
+}
+/* Error box: white + red are inline in the plugin. Shape carries it, no hue. */
+.block-language-tracker div[style*="color: red"] {
+  background-color: transparent !important;
+  color: var(--jr-ink) !important;
+  border: 1.5px dashed rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+}
+.tracker-title,
+.tracker-title-small,
+.tracker-month-header-year,
+.tracker-month-header-month {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.tracker-axis {
+  stroke-width: 1.25px;
+}
+.tracker-line {
+  stroke: var(--jr-ink) !important;
+  stroke-width: 1.75px;
+}
+.tracker-dot {
+  fill: var(--jr-ink) !important;
+  stroke: var(--jr-paper) !important;
+}
+.tracker-bar {
+  fill: transparent !important;
+  stroke: var(--jr-ink) !important;
+  stroke-width: 1.5px;
+}
+.tracker-bar:last-of-type {
+  stroke: var(--jr-pen) !important;
+}
+.tracker-month-dividing-line {
+  fill: rgba(var(--jr-ink-rgb), 0.28);
+}
+.tracker-month-today-circle {
+  stroke: var(--jr-pen) !important;
+  stroke-width: 1.75px;
+}
+.tracker-month-selected-circle {
+  stroke: var(--jr-ink) !important;
+  stroke-width: 1.75px;
+}
+
+/* ── heatmap-calendar + contribution-graph ── levels → ink .08/.22/.40/.62/1.0, shipped palettes by value.
+   shortcut: a custom palette only goes greyscale (inverted in dark), it does not land on the exact ladder; add its values here if it ever matters. */
+.heatmap-calendar-graph {
+  font-family: var(--jr-body);
+  font-size: 0.8em;
+}
+:is(.heatmap-calendar-months, .heatmap-calendar-days) {
+  color: var(--jr-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.heatmap-calendar-year {
+  font-family: var(--jr-display);
+}
+.heatmap-calendar-boxes li,
+.theme-dark .heatmap-calendar-boxes .isEmpty {
+  background: rgba(var(--jr-ink-rgb), 0.08);
+  border-radius: 2px;
+}
+.heatmap-calendar-boxes li[style*="background-color"],
+.contribution-graph .cell[style*="background-color"] {
+  filter: grayscale(1);
+}
+.theme-dark .heatmap-calendar-boxes li[style*="background-color"],
+.theme-dark .contribution-graph .cell[style*="background-color"] {
+  filter: grayscale(1) invert(1);
+}
+:is(.heatmap-calendar-boxes li[style*="#c6e48b" i], .contribution-graph .cell[style*="rgb(155, 233, 168)"]) {
+  background-color: rgba(var(--jr-ink-rgb), 0.22) !important;
+  filter: none !important;
+}
+:is(.heatmap-calendar-boxes li[style*="#7bc96f" i], .contribution-graph .cell[style*="rgb(64, 196, 99)"]) {
+  background-color: rgba(var(--jr-ink-rgb), 0.4) !important;
+  filter: none !important;
+}
+:is(.heatmap-calendar-boxes li[style*="#49af5d" i], .contribution-graph .cell[style*="rgb(48, 161, 78)"]) {
+  background-color: rgba(var(--jr-ink-rgb), 0.62) !important;
+  filter: none !important;
+}
+/* Heatmap has one step more than the ladder (five above empty), so it gets an extra .80. */
+.heatmap-calendar-boxes li[style*="#2e8840" i] {
+  background-color: rgba(var(--jr-ink-rgb), 0.8) !important;
+  filter: none !important;
+}
+:is(.heatmap-calendar-boxes li[style*="#196127" i], .contribution-graph .cell[style*="rgb(33, 110, 57)"]) {
+  background-color: var(--jr-ink) !important;
+  filter: none !important;
+}
+.heatmap-calendar-boxes .today,
+.contribution-graph .cell.today {
+  border: 0;
+  outline: 1.75px solid var(--jr-pen) !important;
+  outline-offset: -1px;
+}
+.heatmap-calendar-settings-colors__color-box {
+  filter: grayscale(1);
+}
+.contribution-graph {
+  font-family: var(--jr-body);
+}
+.contribution-graph .main.shadow,
+.theme-dark .contribution-graph .main.shadow {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+  box-shadow: none;
+}
+.contribution-graph .main .title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.contribution-graph :is(.month-indicator, .week-indicator) {
+  color: var(--jr-muted);
+  font-family: var(--jr-body);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.contribution-graph .cell:not(.text, .week-indicator, .empty, [style*="background-color"]) {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.contribution-graph .cell:hover {
+  outline: 1.5px solid var(--jr-ink) !important; /* the plugin writes a white outline + shadow on hover */
+  box-shadow: none !important;
+}
+
+/* ── obsidian-day-planner ── outlines only; blocks never hatch. Colours are inline custom properties. */
+[data-type^="planner-"] .view-content {
+  --shadow-color: transparent;
+  --shadow-right: none;
+  --shadow-bottom: none;
+  --shadow-stationary: none;
+  --shadow-drag: var(--jr-second-stroke);
+  --shadow-border-accent: 0 0 0 2px var(--jr-pen);
+  --border-base: 1.25px solid rgba(var(--jr-ink-rgb), 0.28);
+}
+.theme-light,
+.theme-dark {
+  --planner-time-block-shadow-on-timeline: inset 0 0 0 1.5px var(--jr-ink);
+}
+.workspace-split.mod-root [data-type=planner-time-tracker] {
+  --time-block-bg-color: var(--jr-paper);
+}
+[data-type^="planner-"] [style*="--time-block-bg-color"] {
+  --time-block-bg-color: var(--jr-paper) !important;
+}
+.needle[class*="svelte-"] {
+  height: 2px;
+  background-color: var(--jr-pen);
+}
+.planner-progress-bar {
+  background-color: transparent;
+  border: 1.25px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+}
+.planner-progress-value,
+.planner-progress-value.green {
+  background-color: var(--jr-pen);
+}
+.progress-pie {
+  filter: grayscale(1);
+}
+.progress-pie:after {
+  background-color: var(--jr-paper);
+  color: var(--jr-ink);
+}
+.planner-settings-warning,
+.planner-status-card {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+  background-color: transparent;
+}
+
+/* ── obsidian-full-calendar ── event colours are inline, hence the !important */
+.fc {
+  --fc-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --fc-page-bg-color: var(--jr-paper);
+  --fc-neutral-bg-color: rgba(var(--jr-ink-rgb), 0.04);
+  --fc-neutral-text-color: var(--jr-muted);
+  --fc-button-text-color: var(--jr-ink);
+  --fc-button-bg-color: transparent;
+  --fc-button-border-color: transparent;
+  --fc-button-hover-bg-color: rgba(var(--jr-ink-rgb), 0.08);
+  --fc-button-hover-border-color: transparent;
+  --fc-button-active-bg-color: var(--jr-ink);
+  --fc-button-active-border-color: var(--jr-ink);
+  --fc-event-bg-color: var(--jr-paper);
+  --fc-event-border-color: var(--jr-ink);
+  --fc-event-text-color: var(--jr-ink);
+  --fc-highlight-color: var(--jr-marker);
+  --fc-list-event-hover-bg-color: rgba(var(--jr-ink-rgb), 0.08);
+  --fc-more-link-bg-color: transparent;
+  --fc-more-link-text-color: var(--jr-muted);
+  --fc-non-business-color: rgba(var(--jr-ink-rgb), 0.04);
+  --fc-now-indicator-color: var(--jr-pen);
+  --fc-today-bg-color: transparent;
+}
+.fc-theme-standard .fc-scrollgrid {
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+}
+.fc .fc-toolbar-title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.fc .fc-col-header-cell-cushion {
+  color: var(--jr-muted);
+  font-family: var(--jr-body);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.fc .fc-button:focus,
+.fc .fc-button-primary:not(:disabled):focus {
+  box-shadow: none;
+}
+.fc-event,
+.fc-h-event,
+.fc-v-event,
+.fc-daygrid-block-event {
+  background-color: var(--jr-paper) !important;
+  border: 1.5px solid var(--jr-ink) !important;
+  border-radius: var(--jr-edge-s) !important;
+  box-shadow: none !important;
+}
+.fc-event :is(.fc-event-main, .fc-event-title, .fc-event-time),
+.fc-list-event :is(.fc-event-title, .fc-list-event-time, a) {
+  color: var(--jr-ink) !important;
+}
+.fc-daygrid-event-dot,
+.fc-list-event-dot {
+  border-color: var(--jr-ink) !important;
+}
+.fc-list-event {
+  background-color: transparent !important;
+  border: 0 !important;
+}
+.fc .fc-day-today .fc-daygrid-day-number {
+  border: 1.75px solid var(--jr-pen);
+  border-radius: 50% 46% 52% 48%;
+  color: var(--jr-pen);
+}
+.fc :is(.fc-day-sat, .fc-day-sun) :is(.fc-daygrid-day-number, .fc-col-header-cell-cushion) {
+  color: var(--jr-muted);
+}
+.fc .fc-daygrid-day:is(.fc-day-sat, .fc-day-sun) {
+  background-color: rgba(var(--jr-ink-rgb), 0.04);
+}
+.fc-day-other .fc-daygrid-day-number {
+  color: var(--jr-faint);
+}
+.fc-popover {
+  background: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink) !important;
+  box-shadow: var(--jr-second-stroke) !important;
+}
+
+/* ── calendar + periodic-notes + nldates-obsidian ── nldates: no styles, core suggester only */
+#calendar-container,
+.container[class*="svelte-"]:has(> .nav[class*="svelte-"]) {
+  --color-dot: var(--jr-ink);
+  --color-arrow: var(--jr-ink);
+  --color-button: var(--jr-muted);
+  --color-text-title: var(--jr-ink);
+  --color-text-heading: var(--jr-muted);
+  --color-text-day: var(--jr-ink);
+  --color-text-today: var(--jr-pen);
+  --color-text-weeknum: var(--jr-muted);
+  --color-background-weekend: rgba(var(--jr-ink-rgb), 0.04);
+}
+#calendar-container .title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+#calendar-container .year {
+  color: var(--jr-ink);
+}
+#calendar-container th {
+  font-family: var(--jr-body);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+#calendar-container .day.today:not(.active) {
+  box-shadow: inset 0 0 0 1.75px var(--jr-pen);
+  border-radius: 50% 46% 52% 48%;
+  font-weight: 400;
+}
+#calendar-container :is(.day, .week-num).active,
+#calendar-container :is(.day, .week-num).active:hover {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+#calendar-container .day.adjacent-month {
+  opacity: 0.52;
+}
+.settings-banner {
+  background-color: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── obsidian-banners ── no fade; the image ends on a paper band with a drawn rule */
+.obsidian-banner.gradient:not(.error) {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+.obsidian-banner::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 12px;
+  background: var(--jr-rule-h) left top / 240px 6px repeat-x var(--jr-paper);
+}
+.obsidian-banner .banner-message {
+  border: 1.5px dashed var(--jr-faint);
+  border-radius: var(--jr-edge-s);
+}
+.obsidian-banner-icon .icon-box {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+}
+.obsidian-banner-icon .icon-box:hover {
+  background: rgba(var(--jr-ink-rgb), 0.08);
+}
+
+/* ── obsidian-excalidraw-plugin ── chrome and embed frames only; the core button recipe stays out of its UI */
+.excalidraw button::before,
+.excalidraw button:not(.mod-loading)::after {
+  content: none !important;
+}
+:is(.markdown-rendered, .cm-content) :is(.excalidraw-svg, .excalidraw-embedded-img) {
+  outline: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  outline-offset: 2px;
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── pdf-plus + obsidian-extract-pdf-highlights + obsidian-annotator ──
+   extract-pdf-highlights: no UI. annotator: UI lives in an iframe, CSS can't reach it. */
+.theme-light,
+.theme-dark {
+  --pdf-background: var(--jr-paper);
+  --pdf-sidebar-background: var(--jr-paper);
+  --pdf-shadow: 0 0 0 1.25px rgba(var(--jr-ink-rgb), 0.45);
+  --pdf-spread-shadow: 0 0 0 1.25px rgba(var(--jr-ink-rgb), 0.45);
+  --pdf-thumbnail-shadow: 0 0 0 1.25px rgba(var(--jr-ink-rgb), 0.45);
+  --pdf-plus-vim-hint-background-color: var(--jr-paper);
+  --pdf-plus-vim-hint-color: var(--jr-ink);
+  --pdf-plus-backlink-icon-color: var(--jr-pen);
+}
+.pdf-toolbar {
+  background-color: var(--jr-paper);
+  border-bottom: 1.25px solid rgba(var(--jr-ink-rgb), 0.28);
+}
+.textLayer .highlight,
+.textLayer .highlight.selected {
+  --highlight-bg-color: var(--jr-marker);
+  --highlight-selected-bg-color: var(--jr-marker);
+  outline-color: var(--jr-pen);
+}
+/* Inline per-highlight colours from pdf-plus. */
+.pdf-plus-backlink-highlight-layer .pdf-plus-backlink,
+.textLayer .pdf-plus-backlink {
+  --pdf-plus-color: var(--jr-marker) !important;
+  background-color: var(--jr-marker) !important;
+}
+body.pdf-plus-backlink-selection-underline .pdf-plus-backlink-highlight-layer .pdf-plus-backlink.pdf-plus-backlink-selection {
+  background-color: transparent !important;
+  border-bottom: 2px solid var(--jr-pen) !important;
+}
+.pdf-plus-backlink-highlight-layer .rect-highlight {
+  outline: 1.5px solid var(--jr-pen) !important;
+  background-color: transparent !important;
+}
+.pdf-plus-color-palette-item-inner,
+.pdf-plus-color-indicator {
+  filter: grayscale(1);
+  border: 1.25px solid var(--jr-ink);
+}
+
+/* ── obsidian-markmind + obsidian-mind-map ── */
+.mm-mindmap,
+.markmap,
+.markmap-foreign {
+  font-family: var(--jr-body);
+}
+.mm-node,
+.theme-dark .mm-node,
+.theme-dark .mm-node.mm-root {
+  color: var(--jr-ink);
+}
+.mm-node .mm-node-content {
+  border-radius: var(--jr-edge-s);
+}
+.mm-node.mm-root > .mm-node-content,
+.theme-light .mm-node.mm-root > .mm-node-content {
+  background-color: transparent;
+  border: 1.75px solid var(--jr-ink);
+  color: var(--jr-ink);
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.mm-node.mm-node-second > .mm-node-content {
+  font-family: var(--jr-display);
+}
+.mm-node.mm-node-select > .mm-node-content {
+  outline: 1.5px solid var(--jr-ink);
+  outline-offset: 2px;
+}
+.mm-mindmap svg path,
+.mm-mindmap svg line {
+  stroke: var(--jr-ink) !important;
+}
+.markmap-link,
+.markmap-node > line {
+  stroke: var(--jr-ink) !important;
+}
+.markmap-node > circle {
+  stroke: var(--jr-ink) !important;
+  fill: var(--jr-paper) !important;
+}
+.markmap-foreign,
+.markmap-node text {
+  color: var(--jr-ink);
+  fill: var(--jr-ink);
+}
+
+/* ── mermaid-tools + core mermaid ── */
+.theme-light,
+.theme-dark {
+  --mermaid-accent: var(--jr-pen);
+  --mermaid-background: var(--jr-paper);
+  --mermaid-border-color: var(--jr-ink);
+  --mermaid-critical: var(--jr-ink);
+  --mermaid-error: var(--jr-ink);
+  --mermaid-line-color: var(--jr-ink);
+  --mermaid-muted-color: var(--jr-muted);
+  --mermaid-surface: var(--jr-paper);
+  --mermaid-surface-alt: var(--jr-paper);
+  --mermaid-text-color: var(--jr-ink);
+}
+/* Diagrams rendered through the classic path ship a <style> of baked colours inside their svg. */
+.mermaid svg :is(.node, .cluster) :is(rect, circle, ellipse, polygon, path),
+.mermaid svg :is(rect.actor, rect.note, .labelBox) {
+  fill: var(--jr-paper) !important;
+  stroke: var(--jr-ink) !important;
+}
+.mermaid svg :is(.edgePath path, .flowchart-link, .messageLine0, .messageLine1, .relationshipLine) {
+  stroke: var(--jr-ink) !important;
+}
+.mermaid svg marker path {
+  fill: var(--jr-ink) !important;
+  stroke: var(--jr-ink) !important;
+}
+.mermaid svg :is(text, tspan) {
+  fill: var(--jr-ink) !important;
+  font-family: var(--jr-body) !important;
+}
+.mermaid svg :is(.nodeLabel, .edgeLabel, foreignObject span, foreignObject p) {
+  color: var(--jr-ink) !important;
+  font-family: var(--jr-body) !important;
+}
+.mermaid svg .edgeLabel,
+.mermaid svg .edgeLabel rect {
+  background-color: var(--jr-paper) !important;
+  fill: var(--jr-paper) !important;
+}
+.mermaid-toolbar-element:hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.mermaid-tools-element-container,
+.mermaid-tools-category-section {
+  border-color: rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── obsidian-latex-suite + quick-latex + obsidian-tikzjax ── tikz SVG kept as drawn */
+.latex-suite-snippet-placeholder {
+  --placeholder-bg: var(--jr-marker) !important;
+  --placeholder-outline: rgba(var(--jr-ink-rgb), 0.45) !important;
+}
+.snippets-editor-validity-indicator.valid {
+  background-color: transparent;
+  color: var(--jr-pen);
+}
+.snippets-editor-validity-indicator.invalid {
+  background-color: transparent;
+  color: var(--jr-ink);
+}
+
+/* ── cm-editor-syntax-highlight-obsidian + obsidian-code-block-enhancer + execute-code ──
+   Ink weights plus the pen on keywords and strings. Replaces the core's keyword + function pair for this level. */
+.theme-light,
+.theme-dark {
+  --code-normal: var(--jr-ink);
+  --code-comment: var(--jr-muted);
+  --code-function: var(--jr-ink);
+  --code-important: var(--jr-ink);
+  --code-keyword: var(--jr-pen);
+  --code-operator: var(--jr-muted);
+  --code-property: var(--jr-ink);
+  --code-punctuation: var(--jr-muted);
+  --code-string: var(--jr-pen);
+  --code-tag: var(--jr-ink);
+  --code-value: var(--jr-ink);
+}
+/* The plugin's dark palette is hard-coded on these classes. */
+.cm-s-obsidian :is(.HyperMD-codeblock, .cm-hmd-frontmatter, .cm-math) {
+  color: var(--code-normal) !important;
+}
+.cm-s-obsidian .HyperMD-codeblock :is(.cm-keyword, .cm-string, .cm-string-2),
+.cm-s-obsidian :is(.cm-hmd-frontmatter, .cm-math):is(.cm-keyword, .cm-string, .cm-string-2) {
+  color: var(--jr-pen) !important;
+}
+.cm-s-obsidian .HyperMD-codeblock :is(.cm-atom, .cm-attribute, .cm-builtin, .cm-callee, .cm-def, .cm-number, .cm-property, .cm-qualifier, .cm-tag, .cm-type, .cm-variable, .cm-variable-2, .cm-variable-3, .cm-header, .cm-link, .cm-hr, .cm-error),
+.cm-s-obsidian :is(.cm-hmd-frontmatter, .cm-math):is(.cm-atom, .cm-attribute, .cm-builtin, .cm-callee, .cm-def, .cm-number, .cm-property, .cm-qualifier, .cm-tag, .cm-type, .cm-variable, .cm-variable-2, .cm-variable-3) {
+  color: var(--jr-ink) !important;
+}
+.cm-s-obsidian .HyperMD-codeblock :is(.cm-comment, .cm-operator, .cm-bracket, .cm-meta),
+.cm-s-obsidian :is(.cm-hmd-frontmatter, .cm-math):is(.cm-comment, .cm-operator, .cm-bracket, .cm-meta) {
+  color: var(--jr-muted) !important;
+}
+.code-block-copy-button svg.copy path,
+.code-block-copy-button svg.copy-success path {
+  fill: var(--jr-ink);
+}
+.code-block-copy-button svg.copy-success path {
+  fill: var(--jr-pen);
+}
+.code-block-copy-button:hover svg path {
+  filter: none;
+}
+.code-block-lang-name {
+  color: var(--jr-muted);
+  font-family: var(--jr-body);
+}
+.code-block-linenum-wrap {
+  border-right: 1.25px solid rgba(var(--jr-ink-rgb), 0.28);
+  color: var(--jr-faint);
+}
+code.language-output span.stdout,
+.use-custom-output-color code.language-output span.stdout {
+  color: var(--jr-ink);
+}
+code.language-output span.stderr,
+.use-custom-error-color code.language-output span.stderr {
+  color: var(--jr-ink);
+  text-decoration: underline wavy;
+}
+code.language-output hr {
+  background: rgba(var(--jr-ink-rgb), 0.28);
+}
+.manage-executors-view li button {
+  background: transparent;
+  color: var(--jr-ink);
+}
+
+/* ── obsidian-footnotes + core footnotes ── */
+.theme-light,
+.theme-dark {
+  --footnote-divider-color: rgba(var(--jr-ink-rgb), 0.28);
+  --footnote-divider-color-active: var(--jr-ink);
+  --footnote-id-color: var(--jr-muted);
+  --footnote-id-color-no-occurrences: var(--jr-faint);
+  --footnote-input-background-active: transparent;
+}
+.footnote-shortcut-popup {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.footnote-shortcut-popup-label {
+  color: var(--jr-muted);
+  font-family: var(--jr-display);
+}
+
+/* ── obsidian-link-embed ── cards: rough box via uneven radius, a note may hold many */
+.w {
+  font-family: var(--jr-body);
+}
+.w .wf,
+.w > .wf,
+._lc .wf {
+  background-color: transparent;
+  border: 1.5px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: none;
+}
+.w .th {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.w :is(.td, .tf) {
+  color: var(--jr-muted);
+}
+.embed-buttons :is(.copy-button, .refresh-button) {
+  background-color: var(--jr-paper);
+  color: var(--jr-ink);
+}
+
+/* ── lovely-bases ── shadcn tokens remapped, then Tailwind's palette utilities (all !important upstream) flattened */
+.lovely-bases {
+  --background: var(--jr-paper);
+  --foreground: var(--jr-ink);
+  --card: var(--jr-paper);
+  --card-foreground: var(--jr-ink);
+  --popover: var(--jr-paper);
+  --popover-foreground: var(--jr-ink);
+  --primary: var(--jr-ink);
+  --primary-foreground: var(--jr-paper);
+  --secondary: rgba(var(--jr-ink-rgb), 0.08);
+  --secondary-foreground: var(--jr-ink);
+  --muted: rgba(var(--jr-ink-rgb), 0.08);
+  --muted-foreground: var(--jr-muted);
+  --accent: rgba(var(--jr-ink-rgb), 0.08);
+  --accent-foreground: var(--jr-ink);
+  --border: rgba(var(--jr-ink-rgb), 0.45);
+  --input: rgba(var(--jr-ink-rgb), 0.45);
+  --ring: var(--jr-ink);
+  --destructive: var(--jr-ink);
+  --font-sans: var(--jr-body);
+  --font-serif: var(--jr-body);
+}
+.lovely-bases :is([class*="bg-palette-"], [class*="bg-red-"], [class*="bg-green-"], [class*="bg-blue-"], [class*="bg-yellow-"], [class*="bg-purple-"]) {
+  background-color: rgba(var(--jr-ink-rgb), 0.08) !important;
+}
+.lovely-bases :is([class*="border-red-"], [class*="border-green-"], [class*="border-blue-"], [class*="border-yellow-"], [class*="border-purple-"]) {
+  border-color: var(--jr-ink) !important;
+}
+.lovely-bases :is(.shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .drop-shadow-md, .drop-shadow-lg) {
+  box-shadow: none !important;
+  filter: none !important;
+}
+.lovely-bases :is(.bg-card, .bg-popover) {
+  border: 1.5px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s) !important;
+}
+
+/* ── core bases ── virtualised lists: straight faint grid, no filter */
+.theme-light,
+.theme-dark {
+  --bases-table-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --bases-table-header-weight: 700;
+  --bases-table-header-background: transparent;
+  --bases-table-header-background-hover: rgba(var(--jr-ink-rgb), 0.04);
+  --bases-table-header-color: var(--jr-ink);
+  --bases-table-row-background-hover: rgba(var(--jr-ink-rgb), 0.04);
+  --bases-table-cell-background-selected: rgba(var(--jr-ink-rgb), 0.08);
+  --bases-table-cell-shadow-active: 0 0 0 1.75px var(--jr-ink);
+  --bases-table-cell-shadow-focus: 0 0 0 1.75px var(--jr-ink);
+  --bases-table-summary-background: transparent;
+  --bases-table-group-background: transparent;
+  --bases-cards-radius: var(--jr-edge-s);
+  --bases-cards-background: var(--jr-paper);
+  --bases-cards-container-background: transparent;
+  --bases-cards-cover-background: rgba(var(--jr-ink-rgb), 0.04);
+  --bases-cards-shadow: 0 0 0 1.5px var(--jr-ink);
+  --bases-cards-shadow-hover: 0 0 0 1.5px var(--jr-ink), var(--jr-second-stroke);
+  --bases-kanban-card-radius: var(--jr-edge-s);
+  --bases-kanban-card-background: var(--jr-paper);
+  --bases-kanban-card-shadow: 0 0 0 1.5px var(--jr-ink);
+  --bases-kanban-card-shadow-hover: 0 0 0 1.5px var(--jr-ink), var(--jr-second-stroke);
+  --bases-kanban-card-shadow-focus: 0 0 0 1.75px var(--jr-ink), var(--jr-second-stroke);
+  --bases-kanban-column-background: transparent;
+  --bases-kanban-column-header-background: transparent;
+  --bases-kanban-column-box-shadow: 0 0 0 1.5px var(--jr-ink);
+  --bases-kanban-column-radius: var(--jr-edge-m);
+  --bases-kanban-cover-background: rgba(var(--jr-ink-rgb), 0.04);
+  --bases-embed-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  --bases-embed-border-radius: var(--jr-edge-s);
+}
+.bases-table-header-name,
+.bases-group-heading,
+.bases-cards-property.mod-title .bases-cards-line {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.bases-thead {
+  border-bottom: 1.75px solid rgba(var(--jr-ink-rgb), 0.45);
+}
+
+/* ── 3d-graph-new + obsidian-living-graph + core graph ── living-graph: no stylesheet, reads these vars */
+.theme-light,
+.theme-dark {
+  --graph-line: rgba(var(--jr-ink-rgb), 0.45);
+  --graph-node: var(--jr-ink);
+  --graph-node-focused: var(--jr-pen);
+  --graph-node-tag: var(--jr-pen);
+  --graph-node-attachment: var(--jr-muted);
+  --graph-node-unresolved: var(--jr-faint);
+  --graph-text: var(--jr-ink);
+}
+.graph-3d-view .node-label {
+  color: var(--jr-ink);
+  font-family: var(--jr-body);
+}
+.graph-3d-view .graph-control-section .tree-item-inner {
+  font-family: var(--jr-display);
+}
+.graph-3d-setting-tab > h2 {
+  color: var(--jr-ink);
+}
+
+/* ── obsidian-outliner ── */
+.outliner-plugin-list-line {
+  background-image: linear-gradient(to right, rgba(var(--jr-ink-rgb), 0.28) 1.25px, transparent 1.25px);
+}
+.outliner-plugin-list-line:hover {
+  background: rgba(var(--jr-ink-rgb), 0.28);
+}
+.outliner-plugin-better-lists .list-bullet::after {
+  background-color: var(--jr-muted);
+}
+.outliner-plugin-dropping-line {
+  background-color: var(--jr-marker);
+}
+.outliner-plugin-dragging-line {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+  outline: 1.5px dashed var(--jr-faint);
+}
+.outliner-plugin-drop-zone {
+  background: var(--jr-pen);
+  height: 2.5px;
+}
+
+/* ── table-editor-obsidian ── reads nav-item vars and needs only its icons squared away */
+[data-type="advanced-tables-toolbar"] .nav-buttons-container .nav-action-button {
+  border-radius: var(--jr-edge-s);
+}
+.widget-icon {
+  fill: var(--jr-muted);
+}
+.widget-icon:hover {
+  fill: var(--jr-ink);
+}
+
+/* ── mononote ── no UI */
+
+/* ── core: canvas ── palette 1-3 ink ladder, 4-6 pen ladder; groups dashed */
+.theme-light,
+.theme-dark {
+  --canvas-background: var(--jr-paper);
+  --canvas-card-label-color: var(--jr-muted);
+  --canvas-dot-pattern: rgba(var(--jr-ink-rgb), 0.28);
+  --canvas-color-1: var(--jr-ink);
+  --canvas-color-2: var(--jr-muted);
+  --canvas-color-3: var(--jr-faint);
+  --canvas-color-4: var(--jr-pen);
+  --canvas-color-5: rgba(var(--jr-pen-rgb), 0.74);
+  --canvas-color-6: rgba(var(--jr-pen-rgb), 0.52);
+}
+body.theme-light,
+body.theme-dark {
+  --canvas-color: var(--jr-ink);
+}
+/* Custom hex colours picked per node or edge. */
+.canvas-wrapper [style*="--canvas-color"] {
+  --canvas-color: var(--jr-ink) !important;
+}
+.canvas-node-container {
+  border-width: 1.5px;
+  border-radius: var(--jr-edge-m);
+}
+.canvas-node.is-themed .canvas-node-container {
+  border-color: var(--canvas-color);
+  box-shadow: none;
+}
+.canvas-node.is-selected .canvas-node-container,
+.canvas-node.is-focused .canvas-node-container,
+.canvas-node.is-selected.is-themed .canvas-node-container,
+.canvas-node.is-focused.is-themed .canvas-node-container {
+  border-color: var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.canvas-node-group .canvas-node-container {
+  border-style: dashed;
+}
+.canvas-node-group .canvas-node-content {
+  background-color: transparent;
+}
+.canvas-group-label,
+.canvas-node-label {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.canvas-path-label {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+}
+.canvas-selection,
+.canvas-selection.mod-group-selection {
+  background-color: rgba(var(--jr-ink-rgb), 0.04);
+  border: 1.5px dashed var(--jr-ink);
+}
+/* The floating status bar would otherwise cover the add-card menu. */
+.canvas-card-menu {
+  bottom: 56px;
+}
+.canvas-card-menu,
+.canvas-control-group {
+  background-color: var(--jr-paper);
+  border: 1.5px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+  box-shadow: none;
+}
+
+/* ── core: properties ── */
+.theme-light,
+.theme-dark {
+  --metadata-label-text-color-hover: var(--jr-ink);
+  --metadata-divider-color-hover: rgba(var(--jr-ink-rgb), 0.45);
+  --metadata-divider-color-focus: var(--jr-ink);
+  --metadata-property-box-shadow: 0 0 0 1.25px rgba(var(--jr-ink-rgb), 0.45);
+  --metadata-property-box-shadow-hover: 0 0 0 1.25px rgba(var(--jr-ink-rgb), 0.45);
+  --metadata-property-box-shadow-focus: 0 0 0 1.75px var(--jr-ink);
+  --metadata-property-background-active: rgba(var(--jr-ink-rgb), 0.08);
+  --metadata-property-radius: var(--jr-edge-s);
+  --metadata-property-radius-hover: var(--jr-edge-s);
+  --metadata-property-radius-focus: var(--jr-edge-s);
+  --pill-color-remove: var(--jr-muted);
+  --pill-color-remove-hover: var(--jr-ink);
+}
+.metadata-properties-heading,
+.metadata-properties-title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.metadata-property-icon {
+  color: var(--jr-muted);
+}
+
+/* ── core: embeds, page preview, footnote popovers ── boxes and the double stroke come from theme.src.css */
+.theme-light,
+.theme-dark {
+  --embed-actions-background: var(--jr-paper);
+  --embed-actions-shadow: none;
+  --embed-actions-blur: none;
+}
+
+/* ── core: search-in-note highlights ── */
+.cm-s-obsidian span.obsidian-search-match-highlight,
+.cm-s-obsidian span.cm-highlight.obsidian-search-match-highlight,
+.obsidian-search-match-highlight {
+  background-color: var(--jr-marker);
+  box-shadow: none;
+  mix-blend-mode: normal;
+}
+.markdown-rendered .search-highlight > div {
+  background-color: var(--jr-marker);
+  box-shadow: none;
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+.markdown-rendered .search-highlight > div.is-active {
+  box-shadow: 0 0 0 2px var(--jr-pen);
+}
+.cm-searching {
+  background-color: var(--jr-marker);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dataview:is(.task-list-item, .task-list-basic-item),
+  .kanban-plugin__item {
+    transition: none;
+  }
+  .workspace-leaf-content:has(.search-result-container.is-loading) .graph-controls,
+  .workspace-leaf-content:has(.search-result-container.is-loading) .search-input-container input {
+    animation: none;
+  }
+}

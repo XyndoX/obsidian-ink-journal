@@ -1,0 +1,1188 @@
+/* Journal: workspace, navigation, toolbar and utility plugins, plus the core chrome the core theme leaves open.
+   Tokens come from theme.src.css. Inline colours set by plugin JS need !important: a custom property
+   declared !important beats the same property set inline. Lists scroll, so no filtered pseudo-elements on them. */
+
+/* ── shared: --color-* collapse lives in plugins-content.css; brat, quickadd, linter, note-toolbar and make-md rely on it ── */
+body.theme-light,
+body.theme-dark {
+  --interactive-success: var(--jr-pen);
+  --raised-shadow: none;
+}
+
+/* ── shared: icon-style plugin buttons drop the core wobble box (it would run a filter per row in scrolling lists) ── */
+:is(
+  .notebook-navigator button,
+  button[class*="nn-"],
+  :where(:not(body)[class*="mk-"]) button:not(.mod-cta, .mod-warning),
+  button[class*="mk-"]:not(.mod-cta, .mod-warning),
+  .cg-note-toolbar-container button,
+  .cg-note-toolbar-fab-container button,
+  :is(#editingToolbarModalBar, #editingToolbarPopoverBar) button,
+  .editingToolbarSettingsIcon,
+  .beautitab-iconbutton,
+  .beautitab-search-wrapper,
+  .qa-icon-button,
+  .qa-link-button,
+  .qa-rename-title-button,
+  .qa-onepage-file-picker__remove,
+  button[class*="wb-"],
+  .wb-header-bar button,
+  .wb-btn button,
+  .soundscapesroot button,
+  .soundscapesmymusic button,
+  button[class*="todayEntries"],
+  .slot__buttons button,
+  .heatmap-unit-toggle,
+  .KTR-add-slot-button,
+  .of-panel button:not(.of-quick-add-btn),
+  .lt-ignore-btn
+)::before,
+:is(
+  .notebook-navigator button,
+  button[class*="nn-"],
+  :where(:not(body)[class*="mk-"]) button:not(.mod-cta, .mod-warning),
+  button[class*="mk-"]:not(.mod-cta, .mod-warning),
+  .cg-note-toolbar-container button,
+  .cg-note-toolbar-fab-container button,
+  :is(#editingToolbarModalBar, #editingToolbarPopoverBar) button,
+  .editingToolbarSettingsIcon,
+  .beautitab-iconbutton,
+  .beautitab-search-wrapper,
+  .qa-icon-button,
+  .qa-link-button,
+  .qa-rename-title-button,
+  .qa-onepage-file-picker__remove,
+  button[class*="wb-"],
+  .wb-header-bar button,
+  .wb-btn button,
+  .soundscapesroot button,
+  .soundscapesmymusic button,
+  button[class*="todayEntries"],
+  .slot__buttons button,
+  .heatmap-unit-toggle,
+  .KTR-add-slot-button,
+  .of-panel button:not(.of-quick-add-btn),
+  .lt-ignore-btn
+)::after {
+  content: none !important;
+}
+
+/* ── notebook-navigator ── */
+body.theme-light,
+body.theme-dark {
+  --nn-theme-foreground: var(--jr-ink);
+  --nn-theme-foreground-muted: var(--jr-muted);
+  --nn-theme-foreground-faded: var(--jr-muted); /* dates and word counts are read, so never below muted */
+  --nn-theme-foreground-faint: rgba(var(--jr-ink-rgb), 0.08);
+
+  --nn-theme-nav-bg: var(--jr-paper);
+  --nn-theme-list-bg: var(--jr-paper);
+  --nn-theme-nav-separator-color: var(--jr-ink);
+  --nn-theme-nav-separator-opacity: 0.28;
+  --nn-theme-nav-indent-guide-color: rgba(var(--jr-ink-rgb), 0.28);
+  --nn-theme-nav-leader-color: rgba(var(--jr-ink-rgb), 0.28);
+  --nn-theme-pinned-shortcut-shadow-color: transparent;
+
+  --nn-theme-navitem-border-radius: 5px;
+  --nn-theme-navitem-name-font-weight: 400;
+  --nn-theme-navitem-custom-color-name-font-weight: 400;
+  --nn-theme-navitem-custom-border-color: transparent;
+  --nn-theme-navitem-hover-bg: rgba(var(--jr-ink-rgb), 0.08);
+  --nn-theme-navitem-count-color: var(--jr-muted);
+  --nn-theme-tag-positive-bg: rgba(var(--jr-pen-rgb), 0.18);
+  --nn-theme-tag-negative-bg: rgba(var(--jr-ink-rgb), 0.18);
+
+  /* Selected = solid ink, in the focused pane and the unfocused one alike. */
+  --nn-theme-navitem-selected-bg: var(--jr-ink);
+  --nn-theme-navitem-selected-chevron-color: var(--jr-paper);
+  --nn-theme-navitem-selected-icon-color: var(--jr-paper);
+  --nn-theme-navitem-selected-name-color: var(--jr-paper);
+  --nn-theme-navitem-selected-count-color: var(--jr-paper);
+  --nn-theme-navitem-selected-inactive-bg: var(--jr-ink);
+  --nn-theme-navitem-selected-inactive-chevron-color: var(--jr-paper);
+  --nn-theme-navitem-selected-inactive-icon-color: var(--jr-paper);
+  --nn-theme-navitem-selected-inactive-name-color: var(--jr-paper);
+  --nn-theme-navitem-selected-inactive-count-color: var(--jr-paper);
+
+  --nn-theme-file-border-radius: 7px;
+  --nn-theme-file-feature-border-radius: 4px;
+  --nn-theme-file-name-font-weight: 700;
+  --nn-theme-file-compact-name-font-weight: 400;
+  --nn-theme-list-separator-color: rgba(var(--jr-ink-rgb), 0.28);
+  --nn-theme-list-search-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  --nn-theme-list-search-active-bg: var(--jr-marker);
+  --nn-theme-list-group-header-font-weight: 700;
+  --nn-theme-list-heading-font-weight: 700;
+  --nn-theme-list-header-breadcrumb-font-weight: 700;
+
+  --nn-theme-file-selected-bg: var(--jr-ink);
+  --nn-theme-file-selected-name-color: var(--jr-paper);
+  --nn-theme-file-selected-preview-color: var(--jr-paper);
+  --nn-theme-file-selected-date-color: var(--jr-paper);
+  --nn-theme-file-selected-word-count-color: var(--jr-paper);
+  --nn-theme-file-selected-parent-color: var(--jr-paper);
+  --nn-theme-file-selected-tag-color: var(--jr-paper);
+  --nn-theme-file-selected-tag-border-color: rgba(var(--jr-paper-rgb), 0.6);
+  --nn-theme-file-selected-property-color: var(--jr-paper);
+  --nn-theme-file-selected-property-border-color: rgba(var(--jr-paper-rgb), 0.6);
+  --nn-theme-file-selected-inactive-bg: var(--jr-ink);
+  --nn-theme-file-selected-inactive-name-color: var(--jr-paper);
+  --nn-theme-file-selected-inactive-preview-color: var(--jr-paper);
+  --nn-theme-file-selected-inactive-date-color: var(--jr-paper);
+  --nn-theme-file-selected-inactive-word-count-color: var(--jr-paper);
+  --nn-theme-file-selected-inactive-parent-color: var(--jr-paper);
+  --nn-theme-file-selected-inactive-tag-color: var(--jr-paper);
+  --nn-theme-file-selected-inactive-property-color: var(--jr-paper);
+
+  --nn-theme-file-tag-color: var(--jr-muted);
+  --nn-theme-file-tag-custom-color-text-color: var(--jr-muted);
+  --nn-theme-file-property-color: var(--jr-muted);
+  --nn-theme-file-tag-border-radius: 999px;
+  --nn-theme-file-property-border-radius: 999px;
+  --nn-theme-file-tag-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  --nn-theme-file-task-color: var(--jr-muted);
+  --nn-theme-file-task-complete-color: var(--jr-pen);
+
+  --nn-theme-quick-actions-bg: var(--jr-paper);
+  --nn-theme-quick-actions-border: var(--jr-ink);
+  --nn-theme-quick-actions-separator-color: rgba(var(--jr-ink-rgb), 0.28);
+
+  --nn-theme-header-button-hover-bg: rgba(var(--jr-ink-rgb), 0.08);
+  --nn-theme-header-button-active-bg: var(--jr-ink);
+  --nn-theme-header-button-active-icon-color: var(--jr-paper);
+  --nn-theme-header-button-disabled-icon-color: var(--jr-faint);
+
+  --nn-theme-calendar-weekend-bg: rgba(var(--jr-ink-rgb), 0.04);
+  --nn-theme-calendar-hover-bg: rgba(var(--jr-ink-rgb), 0.08);
+  --nn-theme-calendar-day-today-color: var(--jr-pen);
+  --nn-theme-calendar-day-today-bg: rgba(var(--jr-ink-rgb), 0.08);
+  --nn-theme-calendar-day-active-border-color: var(--jr-pen);
+  --nn-theme-calendar-day-active-border-width: 2px;
+  --nn-theme-calendar-note-indicator-color: var(--jr-muted);
+  --nn-theme-calendar-unfinished-task-indicator-color: var(--jr-pen);
+
+  --nn-theme-divider-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --nn-theme-divider-resize-handle-hover-bg: var(--jr-ink);
+}
+/* The plugin caches a composited colour per scheme; pin the live token so a scheme flip can't leave it stale. */
+body .notebook-navigator .nn-split-container.nn-split-container {
+  --nn-selected-file-bg-color: var(--jr-ink);
+  --nn-selected-navitem-bg-color: var(--jr-ink);
+}
+/* Rainbow and per-folder or per-tag colours arrive inline: collapse them to ink. */
+.nn-navitem {
+  --nn-navitem-custom-bg-color: transparent !important;
+}
+.nn-file {
+  --nn-file-custom-bg-color: transparent !important;
+}
+.nn-file-name[data-has-color='true'] {
+  --nn-file-name-custom-color: var(--nn-theme-file-name-color) !important;
+}
+.notebook-navigator .nn-navitem-icon {
+  color: var(--nn-theme-navitem-icon-color) !important;
+}
+.notebook-navigator .nn-navitem-name,
+.notebook-navigator .nn-list-group-header-text--custom-color {
+  color: var(--nn-theme-navitem-name-color) !important;
+}
+.notebook-navigator .nn-file-icon {
+  color: var(--nn-theme-navitem-icon-color) !important;
+}
+.notebook-navigator .nn-file-tag:is([data-has-color='true'], [data-has-background='true']) {
+  color: var(--nn-theme-file-tag-color) !important;
+  background-image: none !important;
+  border-color: var(--nn-theme-file-tag-border-color) !important;
+}
+/* Active header toggle: the generic icon colour otherwise paints ink on ink. */
+.notebook-navigator button.nn-icon-button.nn-icon-button-active svg {
+  color: var(--jr-paper) !important;
+  stroke: var(--jr-paper) !important;
+}
+.nn-navitem.nn-selected .nn-navitem-indent-guide {
+  display: none;
+}
+.notebook-navigator .nn-navitem.nn-selected :is(.nn-navitem-icon, .nn-navitem-name, .nn-navitem-chevron, .nn-navitem-count) {
+  color: var(--jr-paper) !important;
+}
+.notebook-navigator .nn-file.nn-selected :is(.nn-file-icon, .nn-file-name, .nn-file-tag) {
+  color: var(--jr-paper) !important;
+}
+.notebook-navigator .nn-file.nn-selected .nn-file-tag {
+  border-color: rgba(var(--jr-paper-rgb), 0.6) !important;
+}
+.notebook-navigator .nn-file-name,
+.notebook-navigator .nn-list-group-header-text {
+  font-family: var(--jr-display);
+}
+.nn-tooltip {
+  --nn-theme-file-tag-color: var(--jr-muted);
+  --nn-theme-file-tag-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  background-color: var(--jr-paper);
+  color: var(--jr-ink);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+  box-shadow: var(--jr-second-stroke);
+}
+.nn-tooltip-muted {
+  color: var(--jr-muted);
+}
+.nn-update-banner,
+.nn-navigation-calendar-hover-tooltip {
+  box-shadow: none;
+}
+.nn-drag-preview {
+  filter: none;
+}
+.nn-drag-preview-badge,
+.nn-drag-preview-icon {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+  box-shadow: none;
+}
+.nn-drag-preview-icon svg {
+  color: var(--jr-paper);
+  stroke: var(--jr-paper);
+}
+
+/* ── file-tree-alternative ── */
+body.theme-light,
+body.theme-dark {
+  --oz-fta-folder-icon-color: var(--jr-muted);
+  --oz-fta-folder-indendation-guide-color: rgba(var(--jr-ink-rgb), 0.28);
+  --oz-fta-header-background-color: transparent;
+  --oz-fta-header-icon-colors: var(--jr-muted);
+  --oz-fta-file-pane-foldername-color: var(--jr-ink);
+  --oz-fta-folder-pane-file-name-color: var(--jr-muted);
+  --oz-fta-file-pane-file-name-color: var(--jr-muted);
+  --oz-fta-all-panes-active-text-color: var(--jr-paper);
+  --oz-fta-file-pane-active-file-background-color: var(--jr-ink);
+}
+.oz-folders-action-items,
+.oz-flex-container {
+  backdrop-filter: none;
+}
+/* The plugin paints an active folder's text only, which would be paper on paper. */
+.is-folder-active {
+  background-color: var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+}
+.oz-nav-file {
+  border-bottom-color: rgba(var(--jr-ink-rgb), 0.28);
+}
+.oz-nav-file-tag {
+  background-color: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+}
+.drag-entered,
+.oz-folder-element:hover,
+.oz-nav-file:hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+
+/* ── make-md ── */
+body.theme-light,
+body.theme-dark {
+  --mk-ui-divider: rgba(var(--jr-ink-rgb), 0.28);
+  --mk-ui-border: rgba(var(--jr-ink-rgb), 0.45);
+  --mk-ui-border-accent: var(--jr-ink);
+  --mk-ui-background-overlay: var(--background-modifier-cover);
+  --mk-ui-border-overlay: var(--jr-ink);
+  --mk-ui-background-blur: var(--jr-paper);
+  --mk-ui-background-menu: var(--jr-paper);
+  --mk-ui-background-menu-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --mk-ui-background-active: rgba(var(--jr-ink-rgb), 0.08);
+  --mk-ui-background-selected: rgba(var(--jr-ink-rgb), 0.16);
+  --mk-ui-handle-color: var(--jr-pen);
+  --mk-ui-handle-color-hover: rgba(var(--jr-pen-rgb), 0.18);
+  --mk-ui-handle-outline: var(--jr-paper);
+  --mk-ui-handle-fill: var(--jr-paper);
+  --mk-ui-active: var(--jr-ink);
+  --mk-ui-active-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --mk-ui-text-accent: var(--jr-paper);
+  --mk-ui-text-accent-alpha: rgba(var(--jr-ink-rgb), 0.45);
+  --mk-ui-text-error: var(--jr-ink);
+  --mk-ui-link-color: var(--jr-pen);
+  --mk-shadow-card: none;
+  --mk-shadow-menu: none;
+  --mk-gradient-overlay: none;
+  --mk-color-none: transparent;
+  /* Sticker and label palette: ink steps, the pen for the one cool slot. */
+  --mk-color-black: var(--jr-ink);
+  --mk-color-white: var(--jr-paper);
+  --mk-color-red: var(--jr-ink);
+  --mk-color-orange: rgba(var(--jr-ink-rgb), 0.74);
+  --mk-color-yellow: rgba(var(--jr-ink-rgb), 0.62);
+  --mk-color-brown: rgba(var(--jr-ink-rgb), 0.74);
+  --mk-color-pink: rgba(var(--jr-ink-rgb), 0.62);
+  --mk-color-charcoal: rgba(var(--jr-ink-rgb), 0.62);
+  --mk-color-gray: rgba(var(--jr-ink-rgb), 0.45);
+  --mk-color-green: var(--jr-pen);
+  --mk-color-blue: var(--jr-pen);
+  --mk-color-purple: var(--jr-pen);
+  --mk-color-teal: var(--jr-pen);
+  --mk-color-turquoise: var(--jr-pen);
+}
+/* Stickers: make-md sets --label-color and a white --icon-color inline per item. */
+.mk-tree-wrapper,
+.mk-header-icon,
+.mk-path-icon button {
+  --label-color: transparent !important;
+  --icon-color: var(--mk-ui-text-secondary) !important;
+}
+.mk-tree-item.is-active .mk-path-icon button,
+.mk-tree-item.is-active {
+  --icon-color: var(--jr-paper) !important;
+}
+.mk-tree-item {
+  border-radius: var(--jr-edge-s);
+}
+.mk-editor-context-group .mk-path-context-field {
+  background: transparent;
+}
+.mk-menu,
+.mk-palette,
+.mk-modal,
+.mk-style-menu,
+.mk-color-palette-panel,
+.mk-flowblock-menu,
+.mk-editor-frame-node-selector,
+.mk-editor-actions-body,
+.mk-drawer-content {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.is-phone :is(.mk-palette, .mk-modal) {
+  box-shadow: none;
+}
+.mk-modal-card,
+.mk-space-editor-links,
+.mk-space-editor-smart,
+.mk-blink-suggester .mk-blink-preview,
+.mk-path-explorer .mk-path-context-backlink,
+.is-mobile .mk-focuses {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-m);
+  box-shadow: none;
+}
+.mk-modal-background,
+.mk-cover-image-overlay {
+  background: var(--background-modifier-cover);
+}
+.mk-tree-wrapper.mk-clone.mk-tree-item,
+.mk-icon-set-card:hover,
+.mk-color-mode-button.active {
+  box-shadow: none;
+}
+.mk-cell-option-item,
+.mk-cell-tags-label,
+.mk-cell-date .mk-cell-date-item,
+.mk-cell-clickable,
+.mk-editor-context-group-select {
+  background: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+}
+.mk-cell-option-item.mk-active {
+  color: var(--jr-paper);
+}
+.mk-progress-bar-value {
+  background-color: var(--jr-pen);
+}
+.mk-indicator-insert::before {
+  background: var(--jr-pen);
+}
+.mk-frame-fill {
+  background: var(--jr-hatch);
+}
+.mk-onboarding-banner {
+  background: var(--jr-paper);
+  color: var(--jr-ink);
+  border: 1.75px solid var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.mk-onboarding-banner-button,
+.mk-onboarding-banner-button:hover,
+.mk-onboarding-banner-close:hover {
+  background: transparent;
+  color: var(--jr-ink);
+  border-color: var(--jr-ink);
+}
+.mk-cover-image-delete,
+.mk-cover-image-delete:hover {
+  background: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.mk-day-view-hour-title {
+  color: var(--jr-muted);
+}
+.mk-settings-nav-item .mk-icon-small,
+.mk-settings-nav-item .mk-icon-small svg {
+  color: var(--jr-ink);
+}
+.mk-settings-nav-item:is([data-category=core], [data-category=system]) .mk-icon-small {
+  background: transparent !important;
+}
+.mk-settings-nav-item.mk-active:is([data-category=core], [data-category=system]) {
+  color: var(--jr-pen);
+  border-right-color: var(--jr-pen);
+}
+.mk-floweditor-title,
+.mk-flowspace-title,
+.mk-space-title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+
+/* ── note-toolbar ── */
+body.theme-light,
+body.theme-dark {
+  --cg-nt-tbar-bg-color: var(--jr-paper);
+  --cg-nt-tbar-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --cg-nt-tbar-text-border-color: var(--jr-ink);
+  --cg-nt-tbar-text-border-radius: 7px;
+  --cg-nt-tbar-text-shadow: var(--jr-second-stroke);
+  --cg-nt-tbar-text-item-text-color: var(--jr-muted);
+  --cg-nt-tbar-text-item-text-color-hover: var(--jr-ink);
+  --cg-nt-tbar-text-item-bg-color-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --cg-nt-fab-bg-color: var(--jr-paper);
+  --cg-nt-fab-bg-color-desktop: var(--jr-paper);
+  --cg-nt-fab-bg-color-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --cg-nt-fab-bg-color-hover-desktop: rgba(var(--jr-ink-rgb), 0.08);
+  --cg-nt-fab-border-color: var(--jr-ink);
+  --cg-nt-fab-icon-color: var(--jr-ink);
+  --cg-nt-fab-icon-color-desktop: var(--jr-ink);
+  --cg-nt-item-bg-color-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --cg-nt-item-sep-color: rgba(var(--jr-ink-rgb), 0.28);
+  --ntb-liquid-glass-background: var(--jr-paper);
+  --ntb-shadow-base: none;
+}
+.callout[data-callout="note-toolbar"]::before,
+.callout[data-callout="note-toolbar"]::after {
+  content: none;
+}
+
+/* ── editing-toolbar ── */
+body {
+  --editing-toolbar-background-color: var(--jr-paper) !important;
+  --editing-toolbar-icon-color: var(--jr-ink) !important;
+}
+:is(#editingToolbarModalBar, #editingToolbarPopoverBar) {
+  background-color: var(--jr-paper) !important;
+  backdrop-filter: none !important;
+  border: 1.75px solid var(--jr-ink) !important;
+  border-radius: var(--jr-edge-m) !important;
+  box-shadow: var(--jr-second-stroke) !important;
+}
+:is(#editingToolbarModalBar, #editingToolbarPopoverBar) :is(.editingToolbarCommandItem, button[class^=editingToolbarCommandsubItem]):hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+/* The plugin has no pressed state except Format Brush (body class + aria-label); selected = ink fill. */
+.format-brush-cursor :is(#editingToolbarModalBar, #editingToolbarPopoverBar) button[aria-label="Format Brush"] {
+  background-color: var(--jr-ink) !important;
+  color: var(--jr-paper) !important;
+  --editing-toolbar-icon-color: var(--jr-paper) !important;
+}
+:is(#editingToolbarModalBar, #editingToolbarPopoverBar) button[class^=editingToolbarCommandsubItem] > .subitem {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+  box-shadow: var(--jr-second-stroke);
+}
+:is(#editingToolbarModalBar, #editingToolbarPopoverBar) button.editingToolbar-Divider-Line {
+  background-color: rgba(var(--jr-ink-rgb), 0.28) !important;
+}
+:is(#editingToolbarModalBar, #editingToolbarPopoverBar) button.editingToolbarCommandsubItem-ai::before {
+  background: none;
+}
+.modal-container.editingToolbar-Modal:not(:is(.changename, .customicon)) .modal {
+  background-color: var(--jr-paper);
+}
+.editingToolbar-Modal .wideInputPromptInputEl {
+  background-color: var(--jr-input);
+}
+.position-style-info {
+  color: var(--jr-paper);
+}
+.editing-toolbar-ai-inline-prompt,
+.editing-toolbar-ai-inline-prompt-history-dropdown,
+.editing-toolbar-ai-inline-prompt-mention-dropdown,
+.editing-toolbar-text-input-mention-dropdown {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.editing-toolbar-ai-card,
+.editingToolbarSettingsTabsContainer :is(.sortable-fallback, .sortable-drag) {
+  box-shadow: none;
+}
+.x-color-picker-wrapper {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.x-color-picker-wrapper .x-color-picker-table th {
+  color: var(--jr-muted);
+}
+
+/* ── beautitab: the stock image presets give way to paper; CSS can't tell a preset from a user image ── */
+.workspace-tabs .workspace-leaf-content.beautitab {
+  color: var(--jr-ink);
+}
+.workspace-tabs .workspace-leaf-content.beautitab .beautitab-root {
+  background: var(--jr-paper) !important;
+  text-shadow: none;
+}
+.workspace-tabs .workspace-leaf-content.beautitab .beautitab-root .beautitab-wrapper,
+.workspace-tabs .workspace-leaf-content.beautitab .beautitab-root .beautitab-wrapper .beautitab-top,
+.workspace-tabs .workspace-leaf-content.beautitab .beautitab-root .beautitab-wrapper .beautitab-quote {
+  background: none;
+}
+.workspace-leaf-content.beautitab :is(.beautitab-time, .beautitab-greeting) {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.workspace-leaf-content.beautitab .beautitab-greeting {
+  width: fit-content;
+  margin-inline: auto;
+  padding-bottom: 7px;
+  background: var(--jr-scribble) left bottom / 100% 9px no-repeat;
+}
+.workspace-tabs .workspace-leaf-content.beautitab .beautitab-root .beautitab-wrapper .beautitab-bottom .beautitab-search .beautitab-search-wrapper {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.workspace-tabs .workspace-leaf-content.beautitab .beautitab-root .beautitab-wrapper .beautitab-bottom .beautitab-recentlyedited .beautitab-recentlyedited-file:hover {
+  background: rgba(var(--jr-ink-rgb), 0.08);
+  backdrop-filter: none;
+  box-shadow: none;
+  border-radius: var(--jr-edge-s);
+}
+.workspace-leaf-content.beautitab :is(.beautitab-quote-content, .beautitab-quote-author) {
+  color: var(--jr-muted);
+}
+.beautitabsettings-localbackgrounds .beautitabsettings-localbackgrounds-background .beautitabsettings-localbackgrounds-background-delete:hover {
+  color: var(--jr-ink);
+}
+
+/* ── homepage ── */
+.nv-command-pill {
+  background-color: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── obsidian-hider: no visible chrome ── */
+
+/* ── obsidian-icon-folder (Iconize): user icon colours collapse; shape and fill-none stay ── */
+.iconize-icon {
+  color: var(--icon-color) !important;
+}
+.iconize-icon svg [fill]:not([fill="none"]),
+.iconize-icon svg[fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+.iconize-icon svg [stroke]:not([stroke="none"]),
+.iconize-icon svg[stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+/* Inactive file tabs can hold two identical svgs in one icon element (Iconize/core both render it). */
+.workspace-tab-header-inner-icon > svg ~ svg {
+  display: none;
+}
+:is(.tree-item-self.is-active, .tree-item-self.is-selected) .iconize-icon {
+  color: var(--jr-paper) !important;
+}
+.prompt .iconize-subheadline {
+  color: var(--jr-muted);
+}
+.iconize-dragover-el {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+
+/* ── obsidian-icons-plugin: no colours of its own ── */
+/* ── recent-files-obsidian: core tree styling covers it ── */
+
+/* ── omnisearch ── */
+body.theme-light,
+body.theme-dark {
+  --omnisearch-highlight-color: var(--jr-marker);
+  --omnisearch-highlight-text-color: var(--jr-ink);
+}
+.omnisearch-default-highlight {
+  background: var(--jr-marker);
+  color: inherit;
+  text-decoration: none;
+}
+.suggestion-item.is-selected .omnisearch-default-highlight {
+  background: none;
+  text-decoration: underline;
+}
+
+/* ── settings-search ── */
+.settings-search-results .setting-item.active {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+
+/* ── obsidian-style-settings: the picker keeps its colours, its job is showing them ── */
+.style-settings-heading {
+  border-bottom: 0;
+  background: var(--jr-rule-h) left bottom / 240px 6px repeat-x;
+}
+.style-settings-error {
+  background: transparent;
+  border: 1.5px dashed var(--jr-ink);
+}
+.pickr .pcr-button::before,
+.pickr .pcr-button::after,
+.pcr-app .pcr-swatches > button::before,
+.pcr-app .pcr-swatches > button::after {
+  border: 0;
+  filter: none;
+  z-index: auto;
+}
+.pcr-app {
+  background: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.pcr-app .pcr-interaction input,
+.pcr-app .pcr-interaction .pcr-result {
+  color: var(--jr-ink);
+  background: var(--jr-input);
+}
+.pcr-app .pcr-interaction .pcr-type.active,
+.pcr-app .pcr-interaction .pcr-save {
+  color: var(--jr-paper);
+  background: var(--jr-ink);
+}
+.pcr-app .pcr-interaction .pcr-clear,
+.pcr-app .pcr-interaction .pcr-cancel {
+  color: var(--jr-ink);
+  background: transparent;
+}
+
+/* ── obsidian-minimal-settings: settings pane only, covered by core settings below ── */
+/* ── customizable-menu: no colours of its own ── */
+
+/* ── quickadd ── */
+.qa-suggest-alias::before,
+.qa-suggest-unresolved::before,
+.qa-suggest-heading::before,
+.qa-suggest-block::before {
+  background: var(--jr-muted);
+}
+:is(.qa-alias-pill, .qa-unresolved-pill, .qa-create-pill, .qa-heading-pill, .qa-block-pill) {
+  background: transparent;
+  color: var(--jr-muted);
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+}
+.qa-unresolved-pill {
+  border-style: dashed;
+}
+.qa-file-tooltip,
+.theme-dark .qa-file-tooltip {
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.qaFileSuggestionItem.is-selected,
+#dnd-action-dragged-el.qa-drag-clone .qa-drag-pill {
+  box-shadow: none;
+}
+.theme-dark .qaFileSuggestionItem:hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.qa-date-field .qa-date-field__calendar.is-shown {
+  background-color: rgba(var(--jr-pen-rgb), 0.18);
+}
+
+/* ── templater-obsidian: command tokens already resolve through the core --code-* vars ── */
+.cm-s-obsidian .cm-templater-command.cm-error {
+  border-bottom-color: var(--jr-ink);
+}
+.CodeMirror-hints {
+  background: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.CodeMirror-hint {
+  color: var(--jr-ink);
+}
+li.CodeMirror-hint-active {
+  background: var(--jr-ink);
+  color: var(--jr-paper);
+}
+
+/* ── surfing: chrome only; .wb-frame stays white for the web page behind it ── */
+.wb-create-btn,
+.wb-search-btn,
+.wb-close-btn,
+.wb-close-btn:hover > button > .lucide-x-square,
+.wb-close-btn > button > .lucide-x-square,
+.wb-bookmark-manager-entry {
+  color: var(--jr-muted);
+}
+.wb-btn,
+.theme-light .wb-content-list-text {
+  filter: none;
+}
+.wb-search-suggestion-container {
+  filter: none;
+  background-color: var(--jr-paper);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.wb-search-suggest-item.is-selected,
+.theme-light .wb-search-suggest-item.is-selected {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.theme-light .wb-search-suggest-item.is-selected .wb-search-suggestion-index {
+  color: var(--jr-paper);
+}
+.wb-bookmark-bar {
+  border: 0;
+  background: var(--jr-rule-h) left bottom / 240px 6px repeat-x;
+}
+.wb-bookmark-item,
+.wb-bookmark-folder {
+  border-color: transparent;
+  border-radius: var(--jr-edge-s);
+}
+.wb-bookmark-item:hover,
+.wb-bookmark-folder:hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.wb-frame-notice {
+  background-color: var(--jr-paper);
+  color: var(--jr-ink);
+  border: 1.75px solid var(--jr-ink);
+}
+.theme-light .ant-btn-primary {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.surfing-drag-ghost,
+.wb-page-search-bar-container .wb-last-opened-files .wb-last-opened-file {
+  box-shadow: none;
+}
+.chrome-bridge-surface {
+  border: 1.75px solid var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+.chrome-bridge-badge {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+
+/* ── terminal: canvas colours belong to the plugin's xterm theme; it exposes no palette vars, so only chrome here ── */
+.workspace-leaf-content[data-type="terminal:terminal"] {
+  --vscode-scrollbar-shadow: transparent;
+}
+
+/* ── soundscapes ── */
+.soundscapesroot .soundscapesroot-changesoundscapeselect {
+  border: 0;
+  border-bottom: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 0;
+}
+.soundscapesmymusic .soundscapesmymusic-musiclist .soundscapesmymusic-musiclist-table :is(thead tr, tbody tr, tbody tr:nth-child(odd), tbody tr:nth-child(2n)) {
+  background-color: transparent;
+}
+.soundscapesmymusic .soundscapesmymusic-musiclist .soundscapesmymusic-musiclist-table tbody tr:hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.soundscapesmymusic .soundscapesmymusic-right .soundscapesmymusic-right-search .soundscapesmymusic-right-search-results {
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.soundscapesmymusic .soundscapesmymusic-header .soundscapesmymusic-middle .soundscapesmymusic-middle-seekbar::-webkit-slider-thumb {
+  border-radius: var(--jr-edge-s);
+}
+input.soundscapes-validation-error {
+  border-color: var(--jr-ink);
+  border-style: dashed;
+}
+
+/* ── obsidian42-brat: resolved by the named-colour collapse above; shape keeps the meaning ── */
+.brat-token-info.invalid,
+.brat-token-status.invalid,
+.brat-token-warning {
+  text-decoration: underline double;
+  text-underline-offset: 3px;
+}
+
+/* ── mononote: no UI ── */
+
+/* ── share-note ── */
+.notice:is(.share-note-status-error, .share-note-status-info, .share-note-status-success) {
+  background: var(--jr-paper);
+  color: var(--jr-ink);
+}
+.notice.share-note-status-success a {
+  color: var(--jr-pen);
+}
+.notice.share-note-status-error {
+  text-decoration: underline double;
+  text-underline-offset: 3px;
+}
+
+/* ── obsidian-local-rest-api: settings; red and yellow alerts become shape ── */
+div.obsidian-local-rest-api-content div.certificate-expired {
+  border: 2px double var(--jr-ink);
+}
+div.obsidian-local-rest-api-content :is(div.certificate-expiring-soon, div.certificate-regeneration-recommended) {
+  border: 2px dashed var(--jr-ink);
+}
+
+/* ── mcp-tools: no UI ── */
+/* ── actions-uri: no UI ── */
+
+/* ── better-word-count ── */
+details.bwc-sb-item-setting {
+  border-color: rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-m);
+}
+.bwc-section-count {
+  background: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+}
+
+/* ── keep-the-rhythm: 5 levels → ink .08 / .22 / .40 / .62 / 1.0. Settings write these inline on .workspace (not body), hence that selector + !important ── */
+body,
+.workspace {
+  --light-0: rgba(var(--jr-ink-rgb), 0.08) !important;
+  --light-1: rgba(var(--jr-ink-rgb), 0.22) !important;
+  --light-2: rgba(var(--jr-ink-rgb), 0.40) !important;
+  --light-3: rgba(var(--jr-ink-rgb), 0.62) !important;
+  --light-4: var(--jr-ink) !important;
+  --dark-0: rgba(var(--jr-ink-rgb), 0.08) !important;
+  --dark-1: rgba(var(--jr-ink-rgb), 0.22) !important;
+  --dark-2: rgba(var(--jr-ink-rgb), 0.40) !important;
+  --dark-3: rgba(var(--jr-ink-rgb), 0.62) !important;
+  --dark-4: var(--jr-ink) !important;
+}
+.heatmap-square-today {
+  box-shadow: 0 0 0 1.75px var(--jr-pen);
+}
+.heatmap-wrapper,
+.todayEntries__section,
+.KTR__file-to-delete {
+  background: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-m);
+}
+.heatmap-unit-toggle {
+  outline-color: var(--jr-paper) !important;
+  background-color: var(--jr-paper) !important;
+}
+.heatmap-unit-toggle:active {
+  background-color: rgba(var(--jr-ink-rgb), 0.08) !important;
+}
+.week-day-labels {
+  background: var(--jr-paper);
+}
+.heatmap-square__tooltip-container {
+  background-color: var(--jr-paper);
+}
+.tooltip-content {
+  background: var(--jr-paper);
+  color: var(--jr-ink);
+  border: 1.75px solid var(--jr-ink);
+  box-shadow: var(--jr-second-stroke);
+}
+/* Few cards, not a scrolling list: these can carry the real wobble. */
+.slot,
+.of-card {
+  position: relative;
+  background: transparent;
+  border: 0;
+}
+.slot::before,
+.of-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  filter: var(--jr-wobble);
+}
+.slots-codeblock .slot {
+  background: transparent;
+}
+.slot__value {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.slot__header,
+.stat-unit {
+  color: var(--jr-muted);
+}
+.slot__data-loading {
+  background: none;
+  -webkit-text-fill-color: var(--jr-muted);
+  animation: fade-in 0.5s ease forwards;
+}
+button.KTR-add-slot-button {
+  background: transparent;
+  border: 1.5px dashed rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-m);
+}
+.today-progress-bar,
+.KTR-week-progress .KTR-dot {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.today-progress-bar .progress,
+.KTR-week-progress .KTR-dot.completed {
+  background: var(--jr-pen);
+}
+
+/* ── omnifocus-bridge ── */
+.of-tab-active {
+  color: var(--jr-ink);
+  border-bottom-color: transparent;
+  background: var(--jr-scribble) left bottom / 100% 7px no-repeat;
+}
+.of-header-title,
+.of-card-count,
+.of-section-title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.of-badge {
+  background: transparent;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+}
+.of-tag-onhold {
+  background: transparent;
+  border: 1.25px dashed rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: 999px;
+}
+.of-task-overdue,
+.of-card-overdue .of-card-count,
+.of-section-overdue .of-section-title {
+  text-decoration: underline double;
+  text-underline-offset: 3px;
+}
+.of-card-clickable:hover {
+  background: rgba(var(--jr-ink-rgb), 0.08);
+}
+.of-quick-add-input:focus {
+  border-color: var(--jr-ink);
+}
+.of-quick-add-btn,
+.of-quick-add-btn:hover {
+  background: transparent;
+  color: var(--jr-ink);
+}
+
+/* ── obsidian-custom-frames: frame stays white for the embedded page ── */
+/* ── obsidian-book-search-plugin: no colours of its own ── */
+
+/* ── obsidian-zotero-desktop-connector ── */
+.zt-format,
+.zt-json-viewer__preview,
+.zt-json-viewer__data {
+  background: transparent;
+  border-radius: var(--jr-edge-m);
+}
+.zt-json-viewer__preview.error {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+  border-style: dashed;
+}
+
+/* ── obsidian-omnivore: all four highlight colours → the marker ── */
+mark.omni {
+  background-color: var(--jr-marker);
+}
+.omnivore-collapsible {
+  border-bottom: 1.25px solid rgba(var(--jr-ink-rgb), 0.28);
+}
+
+/* ── media-notes: chrome over video keeps a dark scrim in both schemes, so it picks whichever token is dark ── */
+.theme-light {
+  --jr-nav-scrim: var(--jr-ink);
+  --jr-nav-on-scrim: var(--jr-paper);
+}
+.theme-dark {
+  --jr-nav-scrim: var(--jr-paper);
+  --jr-nav-on-scrim: var(--jr-ink);
+}
+.media-notes-container {
+  background: transparent;
+}
+.progress-bar-container {
+  background-color: rgba(var(--jr-ink-rgb), 0.28);
+}
+.timestamp-inner {
+  color: var(--jr-nav-on-scrim);
+  background-color: var(--jr-nav-scrim);
+}
+.seek-icon,
+.play-icon,
+.pause-icon,
+.speed-icon,
+.round {
+  background-color: var(--jr-nav-scrim);
+}
+
+/* ── obsidian-dictionary-plugin: no colours of its own ── */
+
+/* ── obsidian-languagetool-plugin: major = scribble, minor = wavy ink, style = wavy pen ── */
+.lt-underline:is(.lt-minor, .lt-major, .lt-style),
+:is(.lt-minor, .lt-major, .lt-style) .lt-title > span {
+  box-shadow: none;
+}
+.lt-underline.lt-major,
+.lt-major .lt-title > span {
+  background: var(--jr-scribble) left bottom / 100% 5px no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.lt-underline.lt-minor,
+.lt-minor .lt-title > span {
+  text-decoration: underline wavy var(--jr-muted);
+}
+.lt-underline.lt-style,
+.lt-style .lt-title > span {
+  text-decoration: underline wavy var(--jr-pen);
+}
+.lt-underline:is(.lt-minor, .lt-major, .lt-style):hover {
+  background-color: rgba(var(--jr-ink-rgb), 0.08);
+}
+.lt-predictions-container-glass.cm-tooltip,
+.lt-predictions-container.cm-tooltip,
+.lt-predictions-container-glass,
+.lt-predictions-container,
+.lt-info-box {
+  font-family: var(--jr-body);
+  background: var(--jr-paper);
+  backdrop-filter: none;
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  box-shadow: var(--jr-second-stroke);
+}
+.lt-premium-warning-ack {
+  color: var(--jr-ink);
+}
+
+/* ── remember-cursor-position: no UI in use; its modal resolves through the named-colour collapse ── */
+
+/* ── obsidian-linter: added = pen, removed = ink + strike ── */
+.linter-diff-preview-view .linter-diff-removed {
+  text-decoration: line-through;
+}
+
+/* ── markdown-prettifier: no UI ── */
+/* ── tag-wrangler: no colours of its own ── */
+
+/* ── colored-text status bar swatches: outline, active = solid ink ── */
+.status-color {
+  background-color: transparent !important;
+  border: 1.5px solid var(--jr-ink) !important;
+  border-radius: var(--jr-edge-s);
+}
+.status-color[style*="border-style: solid"] {
+  background-color: var(--jr-ink) !important;
+}
+
+/* ── core: ribbon ── */
+.side-dock-ribbon-action,
+.side-dock-ribbon-action svg {
+  color: var(--icon-color) !important;
+}
+.side-dock-ribbon-action {
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── core: status bar ── */
+body.theme-light,
+body.theme-dark {
+  --status-bar-border-width: 0;
+  --slider-track-background: rgba(var(--jr-ink-rgb), 0.28);
+  --slider-thumb-border-color: var(--jr-ink);
+  --slider-thumb-border-width: 1.75px;
+  --setting-items-background: transparent;
+  --setting-items-border-color: rgba(var(--jr-ink-rgb), 0.28);
+}
+.status-bar {
+  border: 0;
+  background: var(--jr-paper) var(--jr-rule-h) left top / 240px 6px repeat-x;
+}
+.status-bar-item {
+  border-radius: var(--jr-edge-s);
+}
+
+/* ── core: split handles ── */
+.workspace-split.mod-vertical > * > .workspace-leaf-resize-handle,
+.workspace-split:is(.mod-left-split, .mod-right-split) > .workspace-leaf-resize-handle {
+  border-color: transparent;
+  background: var(--jr-rule-v) center top / 6px 240px repeat-y;
+}
+.workspace-split.mod-horizontal > * > .workspace-leaf-resize-handle {
+  border-color: transparent;
+  background: var(--jr-rule-h) left center / 240px 6px repeat-x;
+}
+.workspace-split:is(.mod-vertical, .mod-horizontal) > * > .workspace-leaf-resize-handle:hover,
+.workspace-split:is(.mod-left-split, .mod-right-split) > .workspace-leaf-resize-handle:hover {
+  border-color: var(--jr-ink);
+}
+
+/* ── core: sidebar tab headers: the core theme covers tabs; the vault switcher still needs its line ── */
+.workspace-sidedock-vault-profile {
+  border-top: 0;
+  background: var(--jr-rule-h) left top / 240px 6px repeat-x;
+}
+
+/* ── core: settings window ── */
+.vertical-tab-header {
+  border-inline-end: 0;
+  background: var(--jr-paper) var(--jr-rule-v) right top / 6px 240px repeat-y;
+}
+.vertical-tab-header-group-title {
+  font-family: var(--jr-display);
+  font-weight: 700;
+  color: var(--jr-muted);
+}
+.setting-item {
+  border-top: 0;
+  background: var(--jr-rule-h) left top / 240px 6px repeat-x;
+}
+.setting-item:first-child,
+.setting-item-heading {
+  background: none;
+}
+.setting-items {
+  border-radius: var(--jr-edge-m);
+}
+input[type=range]::-webkit-slider-thumb {
+  background: var(--jr-paper);
+  border-radius: var(--jr-edge-s);
+  box-shadow: none;
+}
+input[type=range]:active::-webkit-slider-thumb {
+  background: var(--jr-ink);
+}
+.community-item {
+  border-radius: var(--jr-edge-m);
+}
+.community-item.is-selected {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.community-item.is-selected * {
+  color: var(--jr-paper);
+}

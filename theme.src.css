@@ -1,0 +1,796 @@
+/* Journal: pen on paper for Obsidian. Two values per scheme (ink, paper), one pen, one marker.
+   Every other role is ink at an opacity. @font-face rules live in fonts.css. */
+
+/* ───── Scheme-independent tokens ───── */
+body {
+  --jr-display: "Kalam", "Patrick Hand", cursive;
+  --jr-body: "Patrick Hand", "Kalam", cursive;
+
+  /* Displacement filters: applied to pseudo-elements that carry a stroke, never to text. */
+  --jr-wobble: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='w' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='3' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E#w");
+  --jr-wobble-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='w' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.025' numOctaves='3' seed='23'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='3' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E#w");
+  /* Wide filter region: the default -10% would clip a bar only 2.5 px wide. */
+  --jr-wobble-bar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='w' x='-300%25' width='700%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' seed='11'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='4' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E#w");
+
+  /* Uneven radii: the cheap wobble for anything that scrolls or clips its pseudo-elements. */
+  --jr-edge-s: 7px 3px 8px 3px / 3px 8px 3px 7px;
+  --jr-edge-m: 18px 5px 15px 6px / 5px 16px 6px 14px;
+  --jr-edge-btn: 11px 8px 12px 9px / 9px 12px 8px 11px;
+
+  --font-text-theme: var(--jr-body);
+  --font-interface-theme: var(--jr-body);
+  /* Monospace stays a real monospace: indentation in code breaks in a proportional hand. */
+  --font-monospace-theme: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Handwriting x-heights run small (spec §2): UI sizes up about 1.12x. */
+  --font-ui-smaller: 13.5px;
+  --font-ui-small: 14.5px;
+  --font-ui-medium: 17px;
+  --font-ui-large: 22px;
+  --font-weight: 400;
+  --bold-modifier: 300;
+  --bold-weight: 700;
+  --line-height-normal: 1.35;
+  --line-height-tight: 1.25;
+
+  --h1-font: var(--jr-display);
+  --h2-font: var(--jr-display);
+  --h3-font: var(--jr-display);
+  --h4-font: var(--jr-display);
+  --h5-font: var(--jr-display);
+  --h6-font: var(--jr-display);
+  --h1-weight: 700;
+  --h2-weight: 700;
+  --h3-weight: 700;
+  --h4-weight: 700;
+  --h5-weight: 700;
+  --h6-weight: 700;
+  --h1-size: 2em;
+  --h2-size: 1.6em;
+  --h3-size: 1.3em;
+  --h4-size: 1.15em;
+  --h5-size: 1.05em;
+  --h6-size: 1em;
+  --h1-line-height: 1.25;
+  --h2-line-height: 1.25;
+  --h3-line-height: 1.25;
+  --h4-line-height: 1.25;
+  --h5-line-height: 1.25;
+  --h6-line-height: 1.25;
+
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 8px;
+  --input-radius: 5px;
+  --button-radius: 10px;
+  --input-height: 38px;
+  --clickable-icon-radius: 6px;
+  --corner-shape: round;
+
+  --shadow-s: none;
+  --shadow-l: none;
+  --input-shadow: none;
+  --input-shadow-hover: none;
+  --menu-shadow: none;
+  --embed-block-shadow-hover: none;
+
+  --tag-radius: 999px;
+  --tag-border-width: 1.5px;
+  --tag-padding-x: 0.6em;
+  --tag-padding-y: 0.05em;
+  --pill-radius: 999px;
+  --pill-border-width: 1.5px;
+
+  --callout-border-width: 0;
+  --callout-radius: 0;
+  --callout-padding: 14px 18px;
+  --callout-blend-mode: normal;
+  --callout-title-weight: 700;
+
+  --code-radius: 3px;
+  --code-border-width: 0;
+  --code-size: 0.88em;
+
+  --table-border-width: 1.25px;
+  --table-header-border-width: 1.75px;
+  --table-header-font: var(--jr-display);
+  --table-header-weight: 700;
+
+  --blockquote-border-thickness: 2.5px;
+  --blockquote-background-color: transparent;
+  --hr-thickness: 0;
+
+  --tab-curve: 0px;
+  --tab-radius: var(--jr-edge-s);
+  --tab-radius-active: var(--jr-edge-s);
+  --tab-outline-width: 0px;
+  --tab-font-size: var(--font-ui-small);
+
+  --nav-item-weight-active: 400;
+  --modal-border-width: 1.75px;
+  --modal-radius: var(--jr-edge-m);
+  --prompt-border-width: 1.75px;
+  --menu-border-width: 1.75px;
+  --menu-radius: var(--jr-edge-m);
+
+  --checkbox-size: 1.15em;
+  --checkbox-radius: 0;
+
+  --embed-border-start: none;
+  --embed-border-end: none;
+  --embed-border-top: none;
+  --embed-border-bottom: none;
+  --embed-padding: 12px 16px;
+  --footnote-size: 0.95em;
+  --popover-font-size: calc(var(--font-text-size) * 1.12);
+}
+
+/* ───── Light: ink on paper ───── */
+.theme-light {
+  --jr-paper: #F3EEE2;
+  --jr-paper-rgb: 243, 238, 226;
+  --jr-ink: #2A2621;
+  --jr-ink-rgb: 42, 38, 33;
+  --jr-pen: #6A3FD6;
+  --jr-pen-rgb: 106, 63, 214;
+  --jr-marker: rgba(255, 214, 48, 0.55);
+  --jr-muted: rgba(42, 38, 33, 0.62);
+  --jr-faint: rgba(42, 38, 33, 0.40);
+  --jr-raised: rgb(235, 230, 218);
+  --jr-input: rgb(237, 232, 220);
+  --accent-h: 257;
+  --accent-s: 65%;
+  --accent-l: 54%;
+  --background-modifier-cover: rgba(42, 38, 33, 0.45);
+
+  --jr-scribble: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 10' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%232A2621' stroke-linecap='round'%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='2' d='M2 4C60 1 120 7 190 4S320 1 398 5'/%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='1.5' d='M7 7C80 9 150 4 230 7S340 9 393 4'/%3E%3C/g%3E%3C/svg%3E");
+  --jr-rule-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 6'%3E%3Cpath fill='none' stroke='%232A2621' stroke-opacity='.45' stroke-width='1.5' d='M0 3C40 1.2 80 4.8 120 3S200 1.2 240 3'/%3E%3C/svg%3E");
+  --jr-rule-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 240'%3E%3Cpath fill='none' stroke='%232A2621' stroke-opacity='.45' stroke-width='1.5' d='M3 0C1.2 40 4.8 80 3 120S1.2 200 3 240'/%3E%3C/svg%3E");
+  --jr-box: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath fill='none' stroke='%232A2621' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round' d='M3.6 3.9C8 3.2 14 3.4 18.6 3.1 19 8 18.7 14 19 18.7 14 19.1 8 18.7 3.2 19 3.5 14 3.2 8 3.6 3.9ZM2.4 3.8 5 3.8'/%3E%3C/svg%3E");
+  --jr-box-done: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cg fill='none' stroke='%236A3FD6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke-width='1.9' d='M3.6 3.9C8 3.2 14 3.4 18.6 3.1 19 8 18.7 14 19 18.7 14 19.1 8 18.7 3.2 19 3.5 14 3.2 8 3.6 3.9ZM2.4 3.8 5 3.8'/%3E%3Cpath stroke-width='2.6' d='M6.4 11.2C7.6 12.6 8.8 14.2 9.8 15.8 11.6 12.2 14 8.6 16.8 5.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ───── Dark: chalk on a board ───── */
+.theme-dark {
+  --jr-paper: #1B1A18;
+  --jr-paper-rgb: 27, 26, 24;
+  --jr-ink: #E4DFD3;
+  --jr-ink-rgb: 228, 223, 211;
+  --jr-pen: #AE93FA;
+  --jr-pen-rgb: 174, 147, 250;
+  --jr-marker: rgba(150, 110, 255, 0.42);
+  --jr-muted: rgba(228, 223, 211, 0.74);
+  --jr-faint: rgba(228, 223, 211, 0.52);
+  --jr-raised: rgb(35, 34, 31);
+  --jr-input: rgb(33, 32, 30);
+  --accent-h: 256;
+  --accent-s: 91%;
+  --accent-l: 78%;
+  --background-modifier-cover: rgba(0, 0, 0, 0.72);
+
+  --jr-scribble: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 10' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23E4DFD3' stroke-linecap='round'%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='2' d='M2 4C60 1 120 7 190 4S320 1 398 5'/%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='1.5' d='M7 7C80 9 150 4 230 7S340 9 393 4'/%3E%3C/g%3E%3C/svg%3E");
+  --jr-rule-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 6'%3E%3Cpath fill='none' stroke='%23E4DFD3' stroke-opacity='.45' stroke-width='1.5' d='M0 3C40 1.2 80 4.8 120 3S200 1.2 240 3'/%3E%3C/svg%3E");
+  --jr-rule-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 240'%3E%3Cpath fill='none' stroke='%23E4DFD3' stroke-opacity='.45' stroke-width='1.5' d='M3 0C1.2 40 4.8 80 3 120S1.2 200 3 240'/%3E%3C/svg%3E");
+  --jr-box: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath fill='none' stroke='%23E4DFD3' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round' d='M3.6 3.9C8 3.2 14 3.4 18.6 3.1 19 8 18.7 14 19 18.7 14 19.1 8 18.7 3.2 19 3.5 14 3.2 8 3.6 3.9ZM2.4 3.8 5 3.8'/%3E%3C/svg%3E");
+  --jr-box-done: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cg fill='none' stroke='%23AE93FA' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke-width='1.9' d='M3.6 3.9C8 3.2 14 3.4 18.6 3.1 19 8 18.7 14 19 18.7 14 19.1 8 18.7 3.2 19 3.5 14 3.2 8 3.6 3.9ZM2.4 3.8 5 3.8'/%3E%3Cpath stroke-width='2.6' d='M6.4 11.2C7.6 12.6 8.8 14.2 9.8 15.8 11.6 12.2 14 8.6 16.8 5.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ───── Role mapping (shared, resolved per scheme) ───── */
+.theme-light,
+.theme-dark {
+  --jr-hatch: repeating-linear-gradient(-41deg, var(--jr-ink) 0 1.25px, transparent 1.25px 6px);
+  --jr-cross-hatch:
+    repeating-linear-gradient(-41deg, var(--jr-ink) 0 1.25px, transparent 1.25px 7px),
+    repeating-linear-gradient(41deg, var(--jr-ink) 0 1.25px, transparent 1.25px 7px);
+  /* The 2 px offset "second stroke" that replaces every overlay shadow. */
+  --jr-second-stroke: 2px 2px 0 -0.5px var(--jr-paper), 2px 2px 0 1px var(--jr-ink);
+
+  --color-base-00: var(--jr-paper);
+  --color-base-05: var(--jr-paper);
+  --color-base-10: var(--jr-paper);
+  --color-base-20: var(--jr-paper);
+  --color-base-25: var(--jr-raised);
+  --color-base-30: rgba(var(--jr-ink-rgb), 0.28);
+  --color-base-35: rgba(var(--jr-ink-rgb), 0.45);
+  --color-base-40: rgba(var(--jr-ink-rgb), 0.45);
+  --color-base-50: var(--jr-faint);
+  --color-base-60: var(--jr-faint);
+  --color-base-70: var(--jr-muted);
+  --color-base-100: var(--jr-ink);
+  --mono-rgb-0: var(--jr-paper-rgb);
+  --mono-rgb-100: var(--jr-ink-rgb);
+
+  --background-primary: var(--jr-paper);
+  --background-primary-alt: var(--jr-raised);
+  --background-secondary: var(--jr-paper);
+  --background-secondary-alt: var(--jr-raised);
+  --background-modifier-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --background-modifier-active-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --background-modifier-border: rgba(var(--jr-ink-rgb), 0.45);
+  --background-modifier-border-hover: var(--jr-muted);
+  --background-modifier-border-focus: var(--jr-ink);
+  --background-modifier-form-field: var(--jr-input);
+  --background-modifier-form-field-hover: var(--jr-input);
+  --background-modifier-message: var(--jr-paper);
+  --background-modifier-box-shadow: transparent;
+  --background-modifier-error: var(--jr-ink);
+  --background-modifier-error-hover: var(--jr-ink);
+  --background-modifier-error-rgb: var(--jr-ink-rgb);
+  --background-modifier-success: var(--jr-pen);
+  --background-modifier-success-rgb: var(--jr-pen-rgb);
+
+  --text-normal: var(--jr-ink);
+  --text-muted: var(--jr-muted);
+  --text-faint: var(--jr-faint);
+  --text-accent: var(--jr-pen);
+  --text-accent-hover: var(--jr-pen);
+  --text-on-accent: var(--jr-paper);
+  --text-on-accent-inverted: var(--jr-ink);
+  --text-error: var(--jr-ink);
+  --text-warning: var(--jr-ink);
+  --text-success: var(--jr-pen);
+  --text-selection: rgba(var(--jr-ink-rgb), 0.16);
+  --text-highlight-bg: var(--jr-marker);
+  --caret-color: var(--jr-ink);
+
+  --interactive-normal: transparent;
+  --interactive-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --interactive-accent: var(--jr-pen);
+  --interactive-accent-hover: var(--jr-pen);
+
+  --icon-color: var(--jr-muted);
+  --icon-color-hover: var(--jr-ink);
+  --icon-color-active: var(--jr-pen);
+  --icon-color-focused: var(--jr-ink);
+  --divider-color: rgba(var(--jr-ink-rgb), 0.28);
+  --divider-color-hover: var(--jr-ink);
+  --indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28);
+  --indentation-guide-color-active: rgba(var(--jr-ink-rgb), 0.45);
+  --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28);
+  --scrollbar-bg: transparent;
+  --scrollbar-thumb-bg: rgba(var(--jr-ink-rgb), 0.28);
+  --scrollbar-active-thumb-bg: rgba(var(--jr-ink-rgb), 0.45);
+
+  --ribbon-background: var(--jr-paper);
+  --ribbon-background-collapsed: var(--jr-paper);
+  --titlebar-background: var(--jr-paper);
+  --titlebar-background-focused: var(--jr-paper);
+  --titlebar-text-color: var(--jr-muted);
+  --titlebar-text-color-focused: var(--jr-ink);
+  --status-bar-background: var(--jr-paper);
+  --status-bar-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --status-bar-text-color: var(--jr-muted);
+
+  --tab-container-background: var(--jr-paper);
+  --tab-background-active: transparent;
+  --tab-divider-color: transparent;
+  --tab-text-color: var(--jr-muted);
+  --tab-text-color-focused: var(--jr-muted);
+  --tab-text-color-active: var(--jr-ink);
+  --tab-text-color-focused-active: var(--jr-ink);
+  --tab-text-color-focused-active-current: var(--jr-ink);
+  --tab-text-color-focused-highlighted: var(--jr-pen);
+
+  --nav-item-color: var(--jr-muted);
+  --nav-item-color-hover: var(--jr-ink);
+  --nav-item-color-active: var(--jr-paper);
+  --nav-item-color-selected: var(--jr-paper);
+  --nav-item-color-highlighted: var(--jr-pen);
+  --nav-item-background-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --nav-item-background-active: var(--jr-ink);
+  --nav-item-background-selected: var(--jr-ink);
+  --nav-collapse-icon-color: var(--jr-faint);
+  --nav-collapse-icon-color-collapsed: var(--jr-faint);
+
+  --h1-color: var(--jr-ink);
+  --h2-color: var(--jr-ink);
+  --h3-color: var(--jr-ink);
+  --h4-color: var(--jr-ink);
+  --h5-color: var(--jr-ink);
+  --h6-color: var(--jr-ink);
+  --bold-color: var(--jr-ink);
+  --italic-color: var(--jr-ink);
+
+  --link-color: var(--jr-pen);
+  --link-color-hover: var(--jr-pen);
+  --link-external-color: var(--jr-pen);
+  --link-external-color-hover: var(--jr-pen);
+  --link-unresolved-color: var(--jr-pen);
+  --link-unresolved-decoration-color: rgba(var(--jr-pen-rgb), 0.45);
+
+  --tag-color: var(--jr-muted);
+  --tag-color-hover: var(--jr-ink);
+  --tag-background: transparent;
+  --tag-background-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --tag-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  --tag-border-color-hover: var(--jr-ink);
+  --pill-color: var(--jr-muted);
+  --pill-background: transparent;
+  --pill-background-hover: rgba(var(--jr-ink-rgb), 0.08);
+  --pill-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  --pill-border-color-hover: var(--jr-ink);
+
+  /* Radios still use these; checkboxes are drawn by --jr-box* further down. */
+  --checkbox-color: var(--jr-pen);
+  --checkbox-color-hover: var(--jr-pen);
+  --checkbox-border-color: var(--jr-ink);
+  --checkbox-border-color-hover: var(--jr-ink);
+  --checkbox-marker-color: var(--jr-paper);
+  --checklist-done-color: var(--jr-muted);
+
+  --callout-title-color: var(--jr-ink);
+  --callout-default: var(--jr-ink-rgb);
+  --callout-bug: var(--jr-ink-rgb);
+  --callout-error: var(--jr-ink-rgb);
+  --callout-example: var(--jr-ink-rgb);
+  --callout-fail: var(--jr-ink-rgb);
+  --callout-important: var(--jr-pen-rgb);
+  --callout-info: var(--jr-pen-rgb);
+  --callout-question: var(--jr-ink-rgb);
+  --callout-success: var(--jr-pen-rgb);
+  --callout-summary: var(--jr-ink-rgb);
+  --callout-tip: var(--jr-pen-rgb);
+  --callout-todo: var(--jr-pen-rgb);
+  --callout-warning: var(--jr-ink-rgb);
+  --callout-quote: var(--jr-ink-rgb);
+
+  /* Syntax: ink, with the pen only on keywords and functions. */
+  --code-background: rgba(var(--jr-ink-rgb), 0.04);
+  --code-normal: var(--jr-ink);
+  --code-comment: var(--jr-muted);
+  --code-function: var(--jr-pen);
+  --code-important: var(--jr-ink);
+  --code-keyword: var(--jr-pen);
+  --code-operator: var(--jr-muted);
+  --code-property: var(--jr-ink);
+  --code-punctuation: var(--jr-muted);
+  --code-string: var(--jr-muted);
+  --code-tag: var(--jr-pen);
+  --code-value: var(--jr-ink);
+
+  --table-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --table-header-border-color: rgba(var(--jr-ink-rgb), 0.45);
+  --table-header-background: transparent;
+  --table-header-background-hover: rgba(var(--jr-ink-rgb), 0.04);
+  --table-header-color: var(--jr-ink);
+  --table-row-alt-background: transparent;
+  --table-row-background-hover: rgba(var(--jr-ink-rgb), 0.04);
+
+  --blockquote-border-color: var(--jr-ink);
+  --blockquote-color: var(--jr-muted);
+  --hr-color: rgba(var(--jr-ink-rgb), 0.45);
+  --list-marker-color: var(--jr-muted);
+  --list-marker-color-hover: var(--jr-ink);
+  --list-marker-color-collapsed: var(--jr-pen);
+
+  --modal-background: var(--jr-paper);
+  --modal-border-color: var(--jr-ink);
+  --prompt-background: var(--jr-paper);
+  --prompt-border-color: var(--jr-ink);
+  --menu-background: var(--jr-paper);
+  --menu-border-color: var(--jr-ink);
+
+  --dropdown-background: transparent;
+  --dropdown-background-hover: rgba(var(--jr-ink-rgb), 0.08);
+
+  --metadata-border-color: rgba(var(--jr-ink-rgb), 0.28);
+  --metadata-divider-color: rgba(var(--jr-ink-rgb), 0.28);
+  --metadata-label-text-color: var(--jr-muted);
+  --metadata-input-text-color: var(--jr-ink);
+
+  --graph-text: var(--jr-ink);
+  --graph-line: rgba(var(--jr-ink-rgb), 0.28);
+  --graph-node: var(--jr-ink);
+  --graph-node-unresolved: var(--jr-faint);
+  --graph-node-focused: var(--jr-pen);
+  --graph-node-tag: var(--jr-pen);
+  --graph-node-attachment: var(--jr-muted);
+}
+
+/* ───── Paper ───── */
+.markdown-preview-view,
+.markdown-source-view.mod-cm6 .cm-scroller {
+  font-size: calc(var(--font-text-size) * 1.12);
+}
+
+/* Dot grid on the page only. Child combinators keep nested embeds from doubling it. */
+.theme-light .markdown-reading-view > .markdown-preview-view,
+.theme-light .markdown-source-view.mod-cm6 > .cm-editor > .cm-scroller {
+  background-image: radial-gradient(circle at 12px 12px, rgba(42, 38, 33, 0.08) 0.75px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ───── Hand-drawn workspace lines ───── */
+.workspace-tab-header-container {
+  background-image: var(--jr-rule-h);
+  background-position: left bottom;
+  background-repeat: repeat-x;
+  background-size: 240px 6px;
+}
+.workspace-ribbon.mod-left {
+  border-inline-end: 0;
+  background-image: var(--jr-rule-v);
+  background-position: right top;
+  background-repeat: repeat-y;
+  background-size: 6px 240px;
+}
+
+/* ───── Tabs: the focused pane's active tab is inverse, other panes get the scribble ───── */
+.workspace-tab-header-container .workspace-tab-header::before,
+.workspace-tab-header-container .workspace-tab-header::after {
+  display: none;
+}
+.workspace-tab-header-container .workspace-tab-header.is-active {
+  background-color: transparent;
+  box-shadow: none;
+}
+.workspace-tab-header-container .workspace-tab-header.is-active .workspace-tab-header-inner {
+  background: var(--jr-scribble) left bottom / 100% 7px no-repeat;
+}
+.workspace-tabs.mod-active .workspace-tab-header-container .workspace-tab-header.is-active {
+  --tab-text-color-active: var(--jr-paper);
+  --tab-text-color-focused-active: var(--jr-paper);
+  --tab-text-color-focused-active-current: var(--jr-paper);
+  --tab-text-color-focused-highlighted: var(--jr-paper);
+  --icon-color: var(--jr-paper);
+  --icon-color-hover: var(--jr-paper);
+}
+.workspace-tabs.mod-active .workspace-tab-header-container .workspace-tab-header.is-active .workspace-tab-header-inner {
+  background: var(--jr-ink);
+  color: var(--jr-paper);
+}
+.workspace-tabs.mod-active .workspace-tab-header-container .workspace-tab-header.is-active .workspace-tab-header-inner-icon {
+  --icon-color-active: var(--jr-paper);
+  --icon-color-focused: var(--jr-paper);
+  color: var(--jr-paper);
+}
+
+/* ───── Selected = solid ink, paper text ───── */
+.tree-item-self.is-active .tree-item-icon,
+.tree-item-self.is-active .nav-file-tag,
+.tree-item-self.is-selected .tree-item-icon,
+.tree-item-self.is-selected .nav-file-tag {
+  color: var(--jr-paper);
+}
+.tree-item-self {
+  border-radius: var(--jr-edge-s);
+}
+.suggestion-item.is-selected,
+.menu-item:not(.is-label):not(.is-disabled).selected,
+body:not(.is-phone) .vertical-tab-nav-item.is-active,
+body:not(.is-phone) .horizontal-tab-nav-item.is-active,
+.clickable-icon.is-active:not(.input-right-decorator) {
+  background-color: var(--jr-ink);
+  color: var(--jr-paper);
+  --icon-color: var(--jr-paper);
+  --icon-color-hover: var(--jr-paper);
+  --icon-color-active: var(--jr-paper);
+}
+.suggestion-item.is-selected *,
+.menu-item:not(.is-label):not(.is-disabled).selected *,
+body:not(.is-phone) .vertical-tab-nav-item.is-active *,
+body:not(.is-phone) .horizontal-tab-nav-item.is-active * {
+  color: var(--jr-paper);
+}
+.menu-item.is-warning:not(.is-disabled).selected {
+  color: var(--jr-paper);
+}
+.menu-item,
+.suggestion-item,
+.vertical-tab-nav-item {
+  border-radius: var(--jr-edge-s);
+}
+
+/* ───── Type ───── */
+strong,
+b,
+.cm-strong,
+.modal-title,
+.setting-item-heading .setting-item-name,
+.callout-title-inner {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+/* Patrick Hand has no italic; Kalam 400 is naturally slanted and needs no fake oblique. */
+em,
+i:not([class]),
+.cm-em {
+  font-family: var(--jr-display);
+  font-style: normal;
+  font-weight: 400;
+}
+strong em,
+em strong,
+.cm-strong.cm-em {
+  font-weight: 700;
+}
+
+/* Scribbled underline, stretched to the text width. */
+.markdown-rendered h1,
+.markdown-rendered h2,
+.inline-title {
+  width: fit-content;
+  background: var(--jr-scribble) left bottom / 100% 9px no-repeat;
+  padding-bottom: 7px;
+}
+.inline-title {
+  min-width: 4em;
+}
+.markdown-source-view.mod-cm6 .cm-header-1,
+.markdown-source-view.mod-cm6 .cm-header-2 {
+  background: var(--jr-scribble) left bottom / 100% 9px no-repeat;
+}
+
+/* Marker: angled stops give the slanted ends of a highlighter stroke without skewing the glyphs. */
+.markdown-rendered mark,
+.cm-s-obsidian span.cm-highlight {
+  background: linear-gradient(100deg, transparent 0.12em, var(--jr-marker) 0.22em, var(--jr-marker) calc(100% - 0.22em), transparent calc(100% - 0.12em));
+  padding: 0 0.3em;
+  margin: 0 -0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  color: var(--text-normal);
+}
+
+/* ───── Hand-drawn boxes: stroke on a pseudo-element, so text never wobbles ───── */
+.callout,
+.el-pre:has(> pre),
+.markdown-rendered table:not(.table-editor, .calendar),
+:is(.markdown-rendered, .cm-content) .markdown-embed {
+  position: relative;
+}
+.callout::before,
+.el-pre:has(> pre)::before,
+.markdown-rendered table:not(.table-editor, .calendar)::before,
+:is(.markdown-rendered, .cm-content) .markdown-embed::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1.75px solid var(--jr-ink);
+  filter: var(--jr-wobble);
+}
+/* Second pass with another seed: the signature doubled line. */
+.callout::after,
+.el-pre:has(> pre)::after {
+  content: "";
+  position: absolute;
+  inset: 1px -1px -1px 1px;
+  pointer-events: none;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  filter: var(--jr-wobble-b);
+}
+:is(.markdown-rendered, .cm-content) .markdown-embed::before {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+}
+
+.callout {
+  overflow: visible; /* app.css hides it, which would clip the wobble */
+  background-color: transparent;
+}
+.callout-title {
+  font-family: var(--jr-display);
+}
+
+.el-pre > pre {
+  background-color: transparent;
+}
+/* Fallback for a pre with no .el-pre wrapper (inside callouts, blockquotes). */
+.markdown-rendered pre {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+}
+.markdown-rendered .el-pre > pre {
+  border: 0;
+}
+
+/* Inner cell lines stay straight and faint; the outside is the wobbling box. */
+.markdown-rendered table:not(.table-editor) tr:first-child th {
+  border-top: 0;
+}
+.markdown-rendered table:not(.table-editor) tr:last-child td {
+  border-bottom: 0;
+}
+.markdown-rendered table:not(.table-editor) :is(th, td):first-child {
+  border-inline-start: 0;
+}
+.markdown-rendered table:not(.table-editor) :is(th, td):last-child {
+  border-inline-end: 0;
+}
+.markdown-rendered thead th {
+  border-bottom: var(--table-header-border-width) solid var(--table-header-border-color);
+}
+
+.markdown-rendered blockquote {
+  position: relative;
+  border-inline-start: 0;
+  padding-inline-start: 20px;
+}
+.markdown-rendered blockquote::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 2px;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 2.5px;
+  background-color: var(--jr-ink);
+  border-radius: 2px;
+  filter: var(--jr-wobble-bar);
+}
+
+hr,
+.markdown-rendered hr {
+  border: 0;
+  height: 6px;
+  background: var(--jr-rule-h) left center / 240px 6px repeat-x;
+}
+
+/* ───── Task checkboxes: drawn box, pen check when done ───── */
+input[type=checkbox]:not(.checkbox-container input) {
+  border: 0;
+  background: var(--jr-box) center / 100% 100% no-repeat;
+}
+input[type=checkbox]:not(.checkbox-container input):checked {
+  background: var(--jr-box-done) center / 100% 100% no-repeat;
+}
+input[type=checkbox]:not(.checkbox-container input):checked::after {
+  display: none;
+}
+
+/* ───── Toggles: outline when off, solid ink when on ───── */
+.checkbox-container,
+.checkbox-container:hover {
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1.75px var(--jr-ink);
+  --toggle-thumb-color: var(--jr-ink);
+}
+.checkbox-container.is-enabled,
+.checkbox-container.is-enabled:hover {
+  background-color: var(--jr-ink);
+  --toggle-thumb-color: var(--jr-paper);
+}
+.checkbox-container::after {
+  box-shadow: none;
+}
+
+/* ───── Buttons ───── */
+button:not(.clickable-icon) {
+  position: relative;
+  isolation: isolate;
+  background-color: transparent;
+  border: 0;
+}
+button:not(.clickable-icon):active {
+  transform: translateY(1px);
+}
+button:not(.clickable-icon)::before,
+button:not(.clickable-icon):not(.mod-loading)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: var(--jr-edge-btn);
+}
+button:not(.clickable-icon)::before {
+  border: 1.75px solid var(--jr-ink);
+  filter: var(--jr-wobble);
+}
+button:not(.clickable-icon):not(.mod-loading)::after {
+  inset: 1px -1px -1px 1px;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  filter: var(--jr-wobble-b);
+}
+
+/* Hatch = primary action only. ::before carries stroke + hatch, ::after is the paper plate. */
+button.mod-cta:not(.clickable-icon),
+button.mod-warning:not(.clickable-icon) {
+  --text-color: var(--jr-ink);
+  padding-inline: 24px;
+  background-color: transparent;
+}
+button.mod-cta:not(.clickable-icon)::before {
+  border-width: 2px;
+  background-image: var(--jr-hatch);
+}
+button.mod-warning:not(.clickable-icon)::before {
+  border-width: 2px;
+  background-image: var(--jr-cross-hatch);
+}
+button.mod-cta:not(.clickable-icon):not(.mod-loading)::after,
+button.mod-warning:not(.clickable-icon):not(.mod-loading)::after {
+  inset: 7px 12px;
+  border: 0;
+  border-radius: 4px;
+  background-color: var(--jr-paper);
+  filter: none;
+}
+button.mod-warning:not(.clickable-icon) {
+  text-decoration: underline double;
+  text-underline-offset: 3px;
+}
+/* After the variants above so it beats their transparent background; shows through the hatch gaps. */
+button:not(.clickable-icon):hover,
+button:not(.clickable-icon).mobile-tap {
+  background-color: var(--interactive-hover);
+}
+
+/* Disabled = dashed outline + faint label, whatever the variant. */
+button:not(.clickable-icon):is(:disabled, .is-disabled) {
+  --text-color: var(--jr-faint);
+  background-color: transparent;
+  text-decoration: none;
+}
+button:not(.clickable-icon):is(:disabled, .is-disabled)::before {
+  border: 1.5px dashed var(--jr-faint);
+  background-image: none;
+}
+button:not(.clickable-icon):not(.mod-loading):is(:disabled, .is-disabled)::after {
+  display: none;
+}
+
+/* ───── Inputs: bottom edge pressed harder, focus = double stroke ───── */
+input:is([type=text], [type=search], [type=email], [type=password], [type=number], [type=date], [type=datetime-local]):not(:is(.prompt-input-container, .metadata-container, .pdf-toolbar, .pdf-findbar) input),
+textarea,
+select,
+.dropdown {
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-bottom: 2.25px solid var(--jr-ink);
+  border-radius: var(--jr-edge-s);
+}
+input:is([type=text], [type=search], [type=email], [type=password], [type=number], [type=date], [type=datetime-local]):not(:is(.prompt-input-container, .metadata-container, .pdf-toolbar, .pdf-findbar) input):focus,
+textarea:focus {
+  border-color: var(--jr-ink);
+  box-shadow: 0 0 0 1px var(--jr-paper), 0 0 0 2.25px var(--jr-ink);
+}
+::placeholder {
+  color: var(--jr-faint);
+}
+
+/* ───── Overlays: uneven radius + second stroke. These scroll, so no filtered pseudo-elements. ───── */
+.modal,
+.prompt,
+.menu,
+.popover,
+.suggestion-container,
+.cm-tooltip.cm-tooltip-autocomplete {
+  border: 1.75px solid var(--jr-ink);
+  border-radius: var(--jr-edge-m);
+  background-color: var(--jr-paper);
+  backdrop-filter: none;
+  box-shadow: var(--jr-second-stroke);
+}
+
+/* ───── Notice: sticky note, the one rotated element ───── */
+.notice {
+  position: relative;
+  background-color: var(--jr-paper);
+  color: var(--jr-ink);
+  border: 1.75px solid var(--jr-ink);
+  border-radius: 2px;
+  box-shadow: none;
+  transform: rotate(-0.6deg);
+}
+.notice::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: -1.75px;
+  bottom: -1.75px;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(-45deg, var(--jr-paper) 50%, var(--jr-ink) 50%, var(--jr-ink) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(.clickable-icon):active {
+    transform: none;
+  }
+  .checkbox-container::after {
+    transition: none;
+  }
+}
+
+/* ── core: tooltips. Core hard-codes near-white text, which vanishes on the paper background ── */
+.tooltip {
+  color: var(--jr-ink);
+  border: 1.5px solid var(--jr-ink);
+}

@@ -1,0 +1,474 @@
+/* Journal: common note-layout helpers (dashboard, daily notes, calendar, heatmaps, folder glyphs), drawn in pen on paper. */
+
+/* ── Glyphs: alpha masks painted in currentColor, so stroke='black' never reaches the screen ── */
+body {
+  --jr-g-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M8.2 3.2C5 3 3 5.2 3.2 8.2S5.4 13 8.2 12.8 13 10.6 12.8 7.8 10.8 3.2 7.2 3.6'/%3E%3C/svg%3E");
+  --jr-g-archive: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M2 4.2C6 3.6 10 4 14 3.7L13.8 6.4 2.2 6.6ZM3 6.6 3.4 13C6 13.4 10 13 12.9 13.2L13.1 6.4M6.2 9.2C7.4 9 8.6 9.2 9.8 9'/%3E%3C/svg%3E");
+  --jr-g-cap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1.5 6.2 8 3l6.5 3.2L8 9.4ZM4.4 8v3.3c2.2 1.6 5 1.6 7.2 0V8'/%3E%3C/svg%3E");
+  --jr-g-map: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M2 4.2 6 2.8l4 1.6 4-1.4v9l-4 1.4-4-1.6-4 1.4ZM6 2.8v9M10 4.4v9'/%3E%3C/svg%3E");
+  --jr-g-pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M3 13l.7-3L11 2.7l2.4 2.4L6 12.4ZM9.6 4.1l2.4 2.4'/%3E%3C/svg%3E");
+  --jr-g-clip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M12.6 7.4 7.4 12.6c-1.5 1.5-4 .1-2.8-1.9L10 5.1c1-1 2.7.3 1.6 1.6L6.8 11.6'/%3E%3C/svg%3E");
+  --jr-g-ruler: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M2 10.5 10.5 2 14 5.5 5.5 14ZM5 7.5l1.6 1.6M7.4 5.1 9 6.7'/%3E%3C/svg%3E");
+  --jr-g-case: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M2.2 5.4C6 5 10 5.2 13.8 5.1L13.6 13 2.4 13.2ZM5.8 5V3h4.4v2M2.4 8.8c3.6 1 7.6 1 11.2 0'/%3E%3C/svg%3E");
+  --jr-g-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M2.4 3 13.6 2.8 13.4 13.2 2.6 13.2ZM2.5 6.6h11M2.5 10h11M6.8 3v10'/%3E%3C/svg%3E");
+  --jr-g-book: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M8 4.4C6.4 3 4 2.8 2 3.4v9.4c2-.6 4.4-.4 6 1 1.6-1.4 4-1.6 6-1V3.4c-2-.6-4.4-.4-6 1ZM8 4.4v9.4'/%3E%3C/svg%3E");
+  --jr-g-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' d='M3.4 3.6 12.6 12.6M12.4 3.4 3.6 12.8'/%3E%3C/svg%3E");
+  --jr-g-planet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' d='M12.2 6.2C8.8 6 6 8.6 6.2 12S9 18 12.2 17.8 18 15.2 17.8 12 15.4 6 11.4 6.4M6.6 10.4C3.6 12 1.8 14 2.4 15.2 3.4 17 8.6 15.8 14 13S22.6 7.8 21.6 6.4C21 5.4 19.4 5.6 17.4 6.6'/%3E%3C/svg%3E");
+}
+
+/* ── Colored Sidebar Items + Iterative Rainbow Folder Backgrounds/Titles ── */
+.nav-files-container {
+  margin: 0 5px;
+  --nav-indentation-guide-width: 1.25px;
+}
+@media only screen and (min-width: 768px) {
+  .nav-file-title,
+  .nav-folder-title {
+    padding-top: 3px !important;
+    padding-bottom: 2px !important;
+  }
+}
+.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-title {
+  margin-top: 5px;
+}
+.nav-file-title.is-active {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+
+/* One row per top-level folder. The trailing space stops "400" from matching "4000 x".
+   NN renders flat rows, so the prefix also reaches every descendant row (guide included).
+   Guide opacity never repeats between neighbours. Only the Journal folder (the daily-notes target) gets the pen. */
+.nav-folder:has(> .nav-folder-title[data-path^="000 "]),
+.nn-navitem.nn-folder[data-path^="000 "] { --jr-folder-glyph: var(--jr-g-archive); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
+.nav-folder:has(> .nav-folder-title[data-path^="200 "]),
+.nn-navitem.nn-folder[data-path^="200 "] { --jr-folder-glyph: var(--jr-g-cap); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
+.nav-folder:has(> .nav-folder-title[data-path^="300 "]),
+.nn-navitem.nn-folder[data-path^="300 "] { --jr-folder-glyph: var(--jr-g-map); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
+.nav-folder:has(> .nav-folder-title[data-path^="400 "]),
+.nn-navitem.nn-folder[data-path^="400 "] { --jr-folder-glyph: var(--jr-g-pencil); --jr-folder-mark: var(--jr-pen); --nav-indentation-guide-color: rgba(var(--jr-pen-rgb), 0.45); }
+.nav-folder:has(> .nav-folder-title[data-path^="500 "]),
+.nn-navitem.nn-folder[data-path^="500 "] { --jr-folder-glyph: var(--jr-g-clip); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
+.nav-folder:has(> .nav-folder-title[data-path^="600 "]),
+.nn-navitem.nn-folder[data-path^="600 "] { --jr-folder-glyph: var(--jr-g-ruler); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
+.nav-folder:has(> .nav-folder-title[data-path^="700 "]),
+.nn-navitem.nn-folder[data-path^="700 "] { --jr-folder-glyph: var(--jr-g-case); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
+.nav-folder:has(> .nav-folder-title[data-path^="800 "]),
+.nn-navitem.nn-folder[data-path^="800 "] { --jr-folder-glyph: var(--jr-g-grid); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
+.nav-folder:has(> .nav-folder-title[data-path^="900 "]),
+.nn-navitem.nn-folder[data-path^="900 "] { --jr-folder-glyph: var(--jr-g-book); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
+.nav-folder:has(> .nav-folder-title[data-path^="999 "]),
+.nn-navitem.nn-folder[data-path^="999 "] { --jr-folder-glyph: var(--jr-g-cross); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
+
+.nn-navitem.nn-folder[data-path] {
+  --nn-theme-nav-indent-guide-color: var(--nav-indentation-guide-color);
+}
+.nn-navitem.nn-folder[data-path] .nn-navitem-indent-guide {
+  --nn-indent-guide-line-width: 1.25px;
+}
+
+/* Top level = no slash in the path; this also leaves out the vault root, whose path is "/". */
+.nav-folder-title:not([data-path*="/"]) .nav-folder-title-content,
+.nn-navitem.nn-folder:not([data-path*="/"]) .nn-navitem-name {
+  font-family: var(--jr-display);
+  font-weight: 700;
+  font-size: var(--font-ui-medium);
+}
+.nav-folder-title:not([data-path*="/"]):not(.is-active):not(.is-selected) .nav-folder-title-content,
+.nn-navitem.nn-folder:not([data-path*="/"]):not(.nn-selected) .nn-navitem-name {
+  color: var(--jr-ink);
+}
+
+/* The glyph takes NN's folder-icon slot, so a row never carries two icons. Core has no slot: it goes before the name. */
+.nn-navitem.nn-folder:not([data-path*="/"]) .nn-navitem-icon svg {
+  display: none;
+}
+.nav-folder-title:not([data-path*="/"]) .nav-folder-title-content::before,
+.nn-navitem.nn-folder:not([data-path*="/"]) .nn-navitem-icon::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background-color: var(--jr-folder-mark, currentColor);
+  mask: var(--jr-folder-glyph, var(--jr-g-default)) center / contain no-repeat;
+}
+.nav-folder-title:not([data-path*="/"]) .nav-folder-title-content::before {
+  margin-inline-end: 6px;
+  vertical-align: -2px;
+}
+/* On a solid ink row the pen would vanish: the glyph follows the paper text. */
+.nav-folder-title:is(.is-active, .is-selected),
+.nn-navitem.nn-folder.nn-selected[data-path] {
+  --jr-folder-mark: currentColor;
+}
+
+/* Thicker left rule. The paper slit keeps the rule visible on a solid ink row.
+   shortcut: NN rows are flat, so only the selected row gets it, not its top-level ancestor; upgrade with one :has() per folder if that reads weak. */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder:has(.tree-item-self.is-active) > .nav-folder-title,
+.nn-navitem.nn-folder.nn-selected[data-path] .nn-navitem-content {
+  box-shadow: inset 4px 0 0 var(--jr-ink), inset 6px 0 0 var(--jr-paper);
+}
+
+/* ── VaultIcon ── */
+.svg-icon.vault {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  mask: var(--jr-g-planet) center / contain no-repeat;
+}
+
+/* ── bookcallout ── */
+.book-suggestion-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.book-cover-image {
+  max-width: 100px;
+  max-height: 100px;
+  margin-right: 10px;
+  object-fit: cover;
+  border-radius: var(--jr-edge-s);
+}
+.book-text-info {
+  flex-grow: 1;
+}
+
+/* ── dashboard ── */
+.dashboard {
+  font-family: inherit;
+  padding-left: 25px !important;
+  padding-right: 25px !important;
+  padding-top: 20px !important;
+}
+.dashboard .markdown-preview-section {
+  max-width: 100%;
+}
+.nav-header-title {
+  text-align: center !important;
+}
+/* Anchor for the absolute month title below. */
+.dashboard .el-pre {
+  position: relative;
+}
+.dashboard .markdown-preview-section .title {
+  top: 60px;
+  position: absolute;
+  font-family: var(--jr-display);
+  font-size: 26pt !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.dashboard div.markdown-preview-section > div > ul > li > .list-bullet {
+  display: none !important;
+}
+.dashboard.markdown-rendered.show-indentation-guide li > ul::before,
+.dashboard.markdown-rendered.show-indentation-guide li > ol::before {
+  display: none;
+}
+.dashboard div > ul {
+  list-style: none;
+  display: flex;
+  column-gap: 50px;
+  flex-flow: row wrap;
+}
+.dashboard div > ul > li {
+  min-width: 250px;
+  width: 15%;
+}
+.dashboard ul.dataview {
+  row-gap: 0 !important;
+  list-style-type: disc !important;
+}
+/* Cards only on the page's own lists: the column rule above also catches every dataview list. */
+.dashboard .markdown-preview-section > div > ul:not(.dataview) {
+  row-gap: 14px;
+}
+.dashboard .markdown-preview-section > div > ul:not(.dataview) > li {
+  position: relative;
+  box-sizing: border-box;
+  padding: 12px 18px;
+}
+.dashboard .markdown-preview-section > div > ul:not(.dataview) > li::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1.75px solid var(--jr-ink);
+  filter: var(--jr-wobble);
+}
+.dashboard .markdown-preview-section > div > ul:not(.dataview) > li::first-line {
+  font-family: var(--jr-display);
+  font-weight: 700;
+}
+.obsidian-banner-wrapper {
+  margin-top: 0 !important;
+  margin-bottom: 250px !important;
+}
+/* Dashboards and dailies only (dailies use h1s as a nav bar): centred h1 in plain notes clashed with the left inline title and h2s. Core h1 is fit-content, hence the auto margin. */
+:is(.dashboard, .daily).markdown-preview-view h1 {
+  text-align: center;
+  margin-inline: auto;
+}
+
+/* ── dashboard_read ── */
+.dashboard.markdown-preview-view.is-readable-line-width .markdown-preview-section,
+.dashboard.markdown-preview-view.is-readable-line-width .markdown-preview-section > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ── fix-dataview-calender ── */
+.workspace-leaf-content .calendar-container {
+  margin: 0 auto !important;
+  padding: 0.5em !important;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-m);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.calendar-container {
+  display: flex;
+  justify-content: center;
+}
+.calendar-container .calendar {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.dataview .dataview-calendar-view {
+  margin: 0 auto;
+  max-width: 600px;
+  padding: 1rem;
+  border: 1.25px solid rgba(var(--jr-ink-rgb), 0.45);
+  border-radius: var(--jr-edge-m);
+}
+.dataview .dataview-calendar-view * {
+  color: var(--text-normal);
+  font-size: var(--font-ui-medium);
+}
+.markdown-preview-view .dataview {
+  overflow-x: auto;
+}
+/* Room for the table's wobbling box, which the overflow above would otherwise clip. */
+.markdown-preview-view .dataview.dataview-container {
+  padding: 3px;
+}
+
+/* ── callendar-fix ── */
+/* Note embeds only: this id is also the calendar sidebar view. Auto height: dot rows outgrew 400px and clipped the month. */
+:is(.markdown-rendered, .cm-content) #calendar-container {
+  width: 60%;
+  max-width: 800px;
+  min-width: 300px;
+  margin: 2em auto;
+  padding: 1.5em;
+  box-sizing: border-box;
+  border-radius: var(--jr-edge-m);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+}
+#calendar-container .calendar {
+  display: block;
+  margin: 0 auto;
+  align-items: center;
+}
+#calendar-container .nav {
+  text-align: center;
+  width: 100%;
+}
+#calendar-container .calendar .day {
+  box-sizing: border-box;
+  padding: 0.5em;
+}
+#calendar-container .calendar .today {
+  color: var(--interactive-accent);
+  font-weight: bold;
+}
+#calendar-container .calendar .dot {
+  fill: var(--color-dot, var(--text-muted));
+}
+
+/* ── Heatmap Tweaks ── */
+.dashboard h3 {
+  color: var(--jr-muted);
+  margin-top: 0.5em !important;
+  margin-bottom: 0 !important;
+}
+.dashboard .markdown-preview-view,
+.dashboard .columnParent {
+  padding-left: 0 !important;
+}
+.wide {
+  --file-line-width: 100%;
+}
+.hide-properties .metadata-container {
+  display: none !important;
+}
+.minimal-bases .bases-header,
+.minimal-bases .markdown-embed-link,
+.minimal-bases .embed-title {
+  display: none;
+}
+.big-buttons .mb-button {
+  height: calc(var(--input-height) * 1.2);
+}
+.big-buttons .mb-button-inner {
+  font-size: var(--h1-size);
+  padding: 20px 12px;
+}
+.big-buttons .mb-icon-wrapper,
+.big-buttons .mb-icon-wrapper svg {
+  height: 24px;
+  width: 24px;
+}
+.launch-page {
+  text-align: center;
+}
+.launch-page .markdown-preview-sizer {
+  padding-top: 30vh;
+  padding-bottom: 0;
+}
+.launch-page .el-pre {
+  margin: 24px;
+}
+
+/* The layers stay: an !important inside a layer beats the plugin's unlayered Tailwind output. */
+@layer utilities {
+  .lovely-bases .rounded-\[4px\] {
+    border-radius: 0.1rem !important;
+  }
+  .lovely-bases .rounded-\[4px\]:not(.cursor-pointer) {
+    background: rgba(var(--jr-ink-rgb), 0.08) !important;
+  }
+  .lovely-bases {
+    --spacing: 0.19vw !important;
+  }
+  .lovely-bases .items-center {
+    padding: 0 !important;
+  }
+  .bases-linear-calendar-view-container .lovely-bases .cursor-pointer span {
+    color: var(--jr-muted);
+    border: none !important;
+    padding: 0 !important;
+    margin: 0;
+    font-size: 13px !important;
+    line-height: 16px !important;
+    font-weight: bold;
+    filter: none !important;
+    margin-left: 4px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    border-radius: 0.2rem !important;
+    background-color: rgba(var(--jr-paper-rgb), 0.8) !important;
+    position: absolute;
+  }
+}
+@layer theme {
+  .lovely-bases .gap-1 {
+    column-gap: 3px !important;
+    row-gap: 3px !important;
+  }
+  .lovely-bases .mb-2 {
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .lovely-bases .w-32 {
+    width: calc(var(--spacing) * 22) !important;
+  }
+  div.flex.flex-col.gap-2 > div:nth-child(1) {
+    align-content: center;
+  }
+  div.flex.flex-col.gap-2 > div:nth-child(1) .text-xs {
+    position: relative !important;
+    padding-left: 2.05vw !important;
+    left: 0 !important;
+  }
+}
+.bases-view[data-view-type="heatmap-calendar"] {
+  --bases-view-padding: 0;
+  --bases-embed-padding: 0;
+  text-transform: uppercase;
+}
+/* Cell colours arrive as inline styles from the note's customColors, out of reach of any variable. */
+.lovely-bases .rounded-\[4px\].cursor-pointer {
+  filter: grayscale(1);
+}
+
+/* ── Daily Note Themes ── */
+.daily :is(h1, .HyperMD-header.HyperMD-header-1) {
+  text-align: center;
+  font-size: 60px;
+  padding: 0 !important;
+}
+.daily :is(h2, .HyperMD-header.HyperMD-header-2) {
+  text-align: center;
+  font-size: 30px;
+  font-family: var(--jr-display);
+  font-weight: 400;
+  padding: 0 !important;
+}
+.daily h2 {
+  margin-inline: auto;
+}
+.daily :is(h3, .HyperMD-header.HyperMD-header-3) {
+  text-align: center;
+  font-size: 32px;
+  padding-top: 0;
+}
+.daily :is(h4, .HyperMD-header.HyperMD-header-4) {
+  background: linear-gradient(100deg, transparent 0.12em, var(--jr-marker) 0.22em, var(--jr-marker) calc(100% - 0.22em), transparent calc(100% - 0.12em));
+  margin-bottom: 0;
+  padding-top: 0;
+  font-size: 20px;
+  width: fit-content;
+  padding-left: 6px;
+  padding-right: 6px;
+  word-wrap: normal;
+}
+.daily p {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.daily hr {
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+}
+.daily img {
+  display: block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+:is(.sunday, .Sunday, .sonntag, .Sonntag,
+.monday, .Monday, .montag, .Montag,
+.tuesday, .Tuesday, .dienstag, .Dienstag,
+.wednesday, .Wednesday, .mittwoch, .Mittwoch,
+.thursday, .Thursday, .donnerstag, .Donnerstag,
+.friday, .Friday, .freitag, .Freitag,
+.saturday, .Saturday, .samstag, .Samstag) svg {
+  color: var(--jr-muted);
+}
+
+/* Each day of the palette becomes a tally of the week so far, Monday 1 to Sunday 7.
+   The vault's template writes the class from the moment locale, hence the German names. */
+.daily .inline-title::after {
+  content: "";
+  display: inline-block;
+  width: 1.1em;
+  height: 0.7em;
+  margin-inline-start: 0.4em;
+  pointer-events: none;
+  background-color: var(--jr-ink);
+  /* A daily note without a weekday class must paint nothing: mask "none" would show a solid block. */
+  mask: var(--jr-tally, linear-gradient(transparent, transparent)) left center / contain no-repeat;
+}
+:is(.monday, .Monday, .montag, .Montag) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25'/%3E%3C/g%3E%3C/svg%3E"); }
+:is(.tuesday, .Tuesday, .dienstag, .Dienstag) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25M10 2 9 24'/%3E%3C/g%3E%3C/svg%3E"); }
+:is(.wednesday, .Wednesday, .mittwoch, .Mittwoch) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25M10 2 9 24M16 3 15 25'/%3E%3C/g%3E%3C/svg%3E"); }
+:is(.thursday, .Thursday, .donnerstag, .Donnerstag) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25M10 2 9 24M16 3 15 25M22 2 21 24'/%3E%3C/g%3E%3C/svg%3E"); }
+:is(.friday, .Friday, .freitag, .Freitag) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25M10 2 9 24M16 3 15 25M22 2 21 24M1 19 25 7'/%3E%3C/g%3E%3C/svg%3E"); }
+:is(.saturday, .Saturday, .samstag, .Samstag) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25M10 2 9 24M16 3 15 25M22 2 21 24M1 19 25 7M32 3 31 25'/%3E%3C/g%3E%3C/svg%3E"); }
+:is(.sunday, .Sunday, .sonntag, .Sonntag) { --jr-tally: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 28'%3E%3Cg fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 3 3 25M10 2 9 24M16 3 15 25M22 2 21 24M1 19 25 7M32 3 31 25M38 2 37 24'/%3E%3C/g%3E%3C/svg%3E"); }
