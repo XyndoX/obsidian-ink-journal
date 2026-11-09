@@ -1,16 +1,16 @@
-# Journal
+# Ink Journal
 
 A pen-on-paper theme for Obsidian: handwriting fonts, wobbly ink outlines and scribbled heading rules, in light and dark. Two values, ink and paper, plus one pen colour for what's active or done.
 
-![Journal in light mode](./images/light.png)
+![Ink Journal in light mode](./images/light.png)
 
-![Journal in dark mode](./images/dark.png)
+![Ink Journal in dark mode](./images/dark.png)
 
 ## Install
 
-**From Obsidian:** Settings → Appearance → Themes → Manage, search for **Journal**, then Install and use.
+**From Obsidian:** Settings → Appearance → Themes → Manage, search for **Ink Journal**, then Install and use.
 
-**By hand:** download `manifest.json` and `theme.css` from the [latest release](https://github.com/XyndoX/obsidian-journal-theme/releases/latest) into `<vault>/.obsidian/themes/Journal/`, then pick **Journal** under Settings → Appearance → Themes.
+**By hand:** download `manifest.json` and `theme.css` from the [latest release](https://github.com/XyndoX/obsidian-ink-journal/releases/latest) into `<vault>/.obsidian/themes/Ink Journal/`, then pick **Ink Journal** under Settings → Appearance → Themes.
 
 Leave the text, interface and monospace font settings empty, because they override the theme's handwriting fonts.
 
