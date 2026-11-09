@@ -527,7 +527,9 @@ em strong,
   background: linear-gradient(100deg, transparent 0.12em, var(--jr-marker) 0.22em, var(--jr-marker) calc(100% - 0.22em), transparent calc(100% - 0.12em));
   padding: 0 0.3em;
   margin: 0 -0.15em;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   -webkit-box-decoration-break: clone;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   box-decoration-break: clone;
   color: var(--text-normal);
 }
@@ -705,6 +707,7 @@ button.mod-warning:not(.clickable-icon):not(.mod-loading)::after {
   filter: none;
 }
 button.mod-warning:not(.clickable-icon) {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }

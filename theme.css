@@ -540,7 +540,9 @@ em strong,
   background: linear-gradient(100deg, transparent 0.12em, var(--jr-marker) 0.22em, var(--jr-marker) calc(100% - 0.22em), transparent calc(100% - 0.12em));
   padding: 0 0.3em;
   margin: 0 -0.15em;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   -webkit-box-decoration-break: clone;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   box-decoration-break: clone;
   color: var(--text-normal);
 }
@@ -718,6 +720,7 @@ button.mod-warning:not(.clickable-icon):not(.mod-loading)::after {
   filter: none;
 }
 button.mod-warning:not(.clickable-icon) {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -1630,6 +1633,7 @@ input.soundscapes-validation-error {
 .brat-token-info.invalid,
 .brat-token-status.invalid,
 .brat-token-warning {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -1645,6 +1649,7 @@ input.soundscapes-validation-error {
   color: var(--jr-pen);
 }
 .notice.share-note-status-error {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -1785,6 +1790,7 @@ button.KTR-add-slot-button {
 .of-task-overdue,
 .of-card-overdue .of-card-count,
 .of-section-overdue .of-section-title {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -1860,15 +1866,19 @@ mark.omni {
 .lt-underline.lt-major,
 .lt-major .lt-title > span {
   background: var(--jr-scribble) left bottom / 100% 5px no-repeat;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   -webkit-box-decoration-break: clone;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   box-decoration-break: clone;
 }
 .lt-underline.lt-minor,
 .lt-minor .lt-title > span {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline wavy var(--jr-muted);
 }
 .lt-underline.lt-style,
 .lt-style .lt-title > span {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline wavy var(--jr-pen);
 }
 .lt-underline:is(.lt-minor, .lt-major, .lt-style):hover {
@@ -2142,6 +2152,7 @@ div.kanban-plugin__lane-title-count {
 div.kanban-plugin__lane-title-count.wip-exceeded {
   background-color: transparent;
   color: var(--jr-ink);
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
 }
 .kanban-plugin__item {
@@ -2514,6 +2525,7 @@ body {
 .mb-error,
 .mb-warning {
   color: var(--jr-ink);
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
 }
 .mb-highlight-keyword,
@@ -3119,6 +3131,7 @@ code.language-output span.stdout,
 code.language-output span.stderr,
 .use-custom-error-color code.language-output span.stderr {
   color: var(--jr-ink);
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline wavy;
 }
 code.language-output hr {
@@ -3486,25 +3499,35 @@ body {
 /* One row per top-level folder. The trailing space stops "400" from matching "4000 x".
    NN renders flat rows, so the prefix also reaches every descendant row (guide included).
    Guide opacity never repeats between neighbours. Only the Journal folder (the daily-notes target) gets the pen. */
-.nav-folder:has(> .nav-folder-title[data-path^="000 "]),
+.nav-folder-title[data-path^="000 "],
+.nav-folder-title[data-path^="000 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="000 "] { --jr-folder-glyph: var(--jr-g-archive); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
-.nav-folder:has(> .nav-folder-title[data-path^="200 "]),
+.nav-folder-title[data-path^="200 "],
+.nav-folder-title[data-path^="200 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="200 "] { --jr-folder-glyph: var(--jr-g-cap); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="300 "]),
+.nav-folder-title[data-path^="300 "],
+.nav-folder-title[data-path^="300 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="300 "] { --jr-folder-glyph: var(--jr-g-map); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
-.nav-folder:has(> .nav-folder-title[data-path^="400 "]),
+.nav-folder-title[data-path^="400 "],
+.nav-folder-title[data-path^="400 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="400 "] { --jr-folder-glyph: var(--jr-g-pencil); --jr-folder-mark: var(--jr-pen); --nav-indentation-guide-color: rgba(var(--jr-pen-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="500 "]),
+.nav-folder-title[data-path^="500 "],
+.nav-folder-title[data-path^="500 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="500 "] { --jr-folder-glyph: var(--jr-g-clip); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
-.nav-folder:has(> .nav-folder-title[data-path^="600 "]),
+.nav-folder-title[data-path^="600 "],
+.nav-folder-title[data-path^="600 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="600 "] { --jr-folder-glyph: var(--jr-g-ruler); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="700 "]),
+.nav-folder-title[data-path^="700 "],
+.nav-folder-title[data-path^="700 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="700 "] { --jr-folder-glyph: var(--jr-g-case); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
-.nav-folder:has(> .nav-folder-title[data-path^="800 "]),
+.nav-folder-title[data-path^="800 "],
+.nav-folder-title[data-path^="800 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="800 "] { --jr-folder-glyph: var(--jr-g-grid); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="900 "]),
+.nav-folder-title[data-path^="900 "],
+.nav-folder-title[data-path^="900 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="900 "] { --jr-folder-glyph: var(--jr-g-book); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
-.nav-folder:has(> .nav-folder-title[data-path^="999 "]),
+.nav-folder-title[data-path^="999 "],
+.nav-folder-title[data-path^="999 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="999 "] { --jr-folder-glyph: var(--jr-g-cross); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
 
 .nn-navitem.nn-folder[data-path] {
@@ -3618,7 +3641,7 @@ body {
 .dashboard div > ul {
   list-style: none;
   display: flex;
-  column-gap: 50px;
+  gap: 0 50px;
   flex-flow: row wrap;
 }
 .dashboard div > ul > li {
@@ -3816,8 +3839,7 @@ body {
 }
 @layer theme {
   .lovely-bases .gap-1 {
-    column-gap: 3px !important;
-    row-gap: 3px !important;
+    gap: 3px !important;
   }
   .lovely-bases .mb-2 {
     padding: 0 !important;

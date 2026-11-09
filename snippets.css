@@ -39,25 +39,35 @@ body {
 /* One row per top-level folder. The trailing space stops "400" from matching "4000 x".
    NN renders flat rows, so the prefix also reaches every descendant row (guide included).
    Guide opacity never repeats between neighbours. Only the Journal folder (the daily-notes target) gets the pen. */
-.nav-folder:has(> .nav-folder-title[data-path^="000 "]),
+.nav-folder-title[data-path^="000 "],
+.nav-folder-title[data-path^="000 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="000 "] { --jr-folder-glyph: var(--jr-g-archive); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
-.nav-folder:has(> .nav-folder-title[data-path^="200 "]),
+.nav-folder-title[data-path^="200 "],
+.nav-folder-title[data-path^="200 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="200 "] { --jr-folder-glyph: var(--jr-g-cap); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="300 "]),
+.nav-folder-title[data-path^="300 "],
+.nav-folder-title[data-path^="300 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="300 "] { --jr-folder-glyph: var(--jr-g-map); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
-.nav-folder:has(> .nav-folder-title[data-path^="400 "]),
+.nav-folder-title[data-path^="400 "],
+.nav-folder-title[data-path^="400 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="400 "] { --jr-folder-glyph: var(--jr-g-pencil); --jr-folder-mark: var(--jr-pen); --nav-indentation-guide-color: rgba(var(--jr-pen-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="500 "]),
+.nav-folder-title[data-path^="500 "],
+.nav-folder-title[data-path^="500 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="500 "] { --jr-folder-glyph: var(--jr-g-clip); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
-.nav-folder:has(> .nav-folder-title[data-path^="600 "]),
+.nav-folder-title[data-path^="600 "],
+.nav-folder-title[data-path^="600 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="600 "] { --jr-folder-glyph: var(--jr-g-ruler); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="700 "]),
+.nav-folder-title[data-path^="700 "],
+.nav-folder-title[data-path^="700 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="700 "] { --jr-folder-glyph: var(--jr-g-case); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
-.nav-folder:has(> .nav-folder-title[data-path^="800 "]),
+.nav-folder-title[data-path^="800 "],
+.nav-folder-title[data-path^="800 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="800 "] { --jr-folder-glyph: var(--jr-g-grid); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.45); }
-.nav-folder:has(> .nav-folder-title[data-path^="900 "]),
+.nav-folder-title[data-path^="900 "],
+.nav-folder-title[data-path^="900 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="900 "] { --jr-folder-glyph: var(--jr-g-book); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.62); }
-.nav-folder:has(> .nav-folder-title[data-path^="999 "]),
+.nav-folder-title[data-path^="999 "],
+.nav-folder-title[data-path^="999 "] + .nav-folder-children,
 .nn-navitem.nn-folder[data-path^="999 "] { --jr-folder-glyph: var(--jr-g-cross); --nav-indentation-guide-color: rgba(var(--jr-ink-rgb), 0.28); }
 
 .nn-navitem.nn-folder[data-path] {
@@ -171,7 +181,7 @@ body {
 .dashboard div > ul {
   list-style: none;
   display: flex;
-  column-gap: 50px;
+  gap: 0 50px;
   flex-flow: row wrap;
 }
 .dashboard div > ul > li {
@@ -369,8 +379,7 @@ body {
 }
 @layer theme {
   .lovely-bases .gap-1 {
-    column-gap: 3px !important;
-    row-gap: 3px !important;
+    gap: 3px !important;
   }
   .lovely-bases .mb-2 {
     padding: 0 !important;

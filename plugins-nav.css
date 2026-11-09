@@ -819,6 +819,7 @@ input.soundscapes-validation-error {
 .brat-token-info.invalid,
 .brat-token-status.invalid,
 .brat-token-warning {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -834,6 +835,7 @@ input.soundscapes-validation-error {
   color: var(--jr-pen);
 }
 .notice.share-note-status-error {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -974,6 +976,7 @@ button.KTR-add-slot-button {
 .of-task-overdue,
 .of-card-overdue .of-card-count,
 .of-section-overdue .of-section-title {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
   text-underline-offset: 3px;
 }
@@ -1049,15 +1052,19 @@ mark.omni {
 .lt-underline.lt-major,
 .lt-major .lt-title > span {
   background: var(--jr-scribble) left bottom / 100% 5px no-repeat;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   -webkit-box-decoration-break: clone;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- the -webkit- form covers Chromium before 130 */
   box-decoration-break: clone;
 }
 .lt-underline.lt-minor,
 .lt-minor .lt-title > span {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline wavy var(--jr-muted);
 }
 .lt-underline.lt-style,
 .lt-style .lt-title > span {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline wavy var(--jr-pen);
 }
 .lt-underline:is(.lt-minor, .lt-major, .lt-style):hover {

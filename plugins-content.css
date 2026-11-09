@@ -141,6 +141,7 @@ div.kanban-plugin__lane-title-count {
 div.kanban-plugin__lane-title-count.wip-exceeded {
   background-color: transparent;
   color: var(--jr-ink);
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
 }
 .kanban-plugin__item {
@@ -513,6 +514,7 @@ body {
 .mb-error,
 .mb-warning {
   color: var(--jr-ink);
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline double;
 }
 .mb-highlight-keyword,
@@ -1118,6 +1120,7 @@ code.language-output span.stdout,
 code.language-output span.stderr,
 .use-custom-error-color code.language-output span.stderr {
   color: var(--jr-ink);
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- double/wavy underlines render in every Obsidian Chromium */
   text-decoration: underline wavy;
 }
 code.language-output hr {
